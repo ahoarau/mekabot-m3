@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "************************************************"
-echo "Are you sure you want to unistall completely m3 (location : ${CMAKE_INSTALL_PREFIX}) ? (y/n)"
+echo "Are you sure you want to uninstall M3 completely (location : ${CMAKE_INSTALL_PREFIX}) ? (y/n)"
 read a
 if [[ $a == "N" || $a == "n" ]]; then
         echo "m3 NOT unistalled"
