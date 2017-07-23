@@ -22,18 +22,6 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h>
 #include <string>
 
-#if defined(__RTAI__) && defined(__cplusplus)
-extern "C" {
-#include <rtai.h>
-#include <rtai_lxrt.h>
-#include <rtai_sem.h>
-#include <rtai_sched.h>
-#include <rtai_nam2num.h>
-#include <rtai_shm.h>
-#include <rtai_malloc.h>	 
-}
-#endif
-
 #include <ctime>
 
 namespace m3rt
@@ -299,7 +287,7 @@ bool M3RtSystem::Startup()
         if(sys_thread_active)
             break;
         usleep(1e6); //Wait until enters hard real-time and components loaded. Can take some time if alot of components.max wait = 1sec
-        
+
     }
     if(!sys_thread_active) {
         m3rt::M3_INFO("Startup of M3RtSystem thread failed, thread still not active.\n");
@@ -315,7 +303,7 @@ bool M3RtSystem::Shutdown()
     sys_thread_end = true;
 
     usleep(500000);
-    
+
     float timeout_s = 4;
     time_t start_time=time(0);
     while(sys_thread_active && (float)difftime(time(0),start_time) < timeout_s)
@@ -487,7 +475,7 @@ bool M3RtSystem::StartupComponents()
             }
         }
     }
-    
+
     if(GetNumComponents() == 0) {
         M3_WARN("No M3 Components could be loaded....\n", 0);
         return false;
@@ -712,11 +700,11 @@ bool M3RtSystem::Step(bool safeop_only,bool dry_run)
         If we have an External Data Service that sets B.x=e periodically, then A.Step() will overwrite value e.
         Therefore if we want to directly communicate with B.x from the outside world, we must not publish to component A.
     */
-    
+
     //Do some bookkeeping
     M3MonitorStatus *s = factory->GetMonitorStatus();
-    
-    
+
+
 #ifdef __RTAI__
     start_c = rt_get_cpu_time_ns();
     rt_sem_wait(ext_sem);
@@ -732,7 +720,7 @@ bool M3RtSystem::Step(bool safeop_only,bool dry_run)
     rt_sem_wait(shm_sem);
     end_c = rt_get_cpu_time_ns();
     s->set_t_shm_sem_wait(end_c - start_c);
-    
+
     start = rt_get_cpu_time_ns();
 #else
     sem_wait(ext_sem);
@@ -749,7 +737,7 @@ bool M3RtSystem::Step(bool safeop_only,bool dry_run)
 
     }
 
-    
+
     int nop = 0, nsop = 0, nerr = 0;
     for(int i = 0; i < GetNumComponents(); i++) {
         if(GetComponent(i)->IsStateError()) nerr++;

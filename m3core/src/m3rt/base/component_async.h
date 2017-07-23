@@ -1,4 +1,4 @@
-/* 
+/*
 M3 -- Meka Robotics Robot Components
 Copyright (c) 2010 Meka Robotics
 Author: edsinger@mekabot.com (Aaron Edsinger)
@@ -25,27 +25,13 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 #include "m3rt/base/m3rt_def.h"
 #include "m3rt/base/component_factory.h"
 
-//#include "inttypes.h"
-
-#ifdef __RTAI__	
-#ifdef __cplusplus
-extern "C" {
-#endif 
-#include <rtai.h>
-#include <rtai_sem.h>
-#ifdef __cplusplus
-}  // extern "C"
-#endif 
-#endif
-
-
 // Class to inherit from for async communications within M3
 
 
 namespace m3rt
 {
-    static int num_asyncs = 0; 
-	
+    static int num_asyncs = 0;
+
 /**
  * @brief
  *
@@ -57,9 +43,9 @@ class M3ComponentAsync : public M3Component
 		{
 			RegisterVersion("default",DEFAULT);	//RBL
 			RegisterVersion("iss",ISS);		//ISS. Updated safety thresholds to use motor model.
-			
+
 		}
-		
+
         /**
          * @brief
          *
@@ -82,11 +68,10 @@ class M3ComponentAsync : public M3Component
          * @return bool
          */
         bool IsInitializing(){return initializing;}
-		
-#ifdef __RTAI__			
-        SEM * cmd_mutex; 
-            SEM * status_mutex; 
-#endif
+
+        SEM * cmd_mutex;
+        SEM * status_mutex;
+
 
         /**
          * @brief
@@ -106,7 +91,7 @@ class M3ComponentAsync : public M3Component
          * @return google::protobuf::Message
          */
         virtual google::protobuf::Message *  GetParamAsync()=0;
-		
+
         /**
          * @brief
          *
@@ -125,19 +110,19 @@ class M3ComponentAsync : public M3Component
          * @return google::protobuf::Message
          */
         virtual google::protobuf::Message *  GetParamShared()=0;
-		
+
         /**
          * @brief
          *
          * @return google::protobuf::Message
          */
         virtual google::protobuf::Message * GetStatusThread()=0;
-        bool initializing; 
-		
+        bool initializing;
+
 	protected:
-        enum {DEFAULT, ISS};		 
-		
-		
+        enum {DEFAULT, ISS};
+
+
         /**
          * @brief
          *
@@ -171,10 +156,10 @@ class M3ComponentAsync : public M3Component
          * @return bool
          */
         virtual bool LinkDependentComponents();
-	private:	      
-          long rc; 
-          bool stop_thread; 
-          int tmp; 
+	private:
+          long rc;
+          bool stop_thread;
+          int tmp;
 
 };
 
@@ -182,5 +167,3 @@ class M3ComponentAsync : public M3Component
 }
 
 #endif
-
-

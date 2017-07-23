@@ -26,7 +26,6 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 #include "m3rt/rt_system/rt_system.h"
 #include <pthread.h>
 #include <string>
-#include <boost/atomic.hpp>
 
 namespace m3rt
 {

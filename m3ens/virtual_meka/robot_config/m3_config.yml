@@ -1,18 +1,18 @@
 factory_py_libs:
-- /usr/local/lib/python2.7/dist-packages/m3/m3meka_factory_proxy.py
+- python2.7/dist-packages/m3/m3meka_factory_proxy.py
 factory_rt_libs:
-- /usr/local/lib/libm3toolbox.so
-- /usr/local/lib/libm3hardware.so
-- /usr/local/lib/libm3chains.so
-- /usr/local/lib/libm3robots.so
-- /usr/local/lib/libm3robot_ctrl.so
-- /usr/local/lib/libm3vehicles.so
+- libm3toolbox.so
+- libm3hardware.so
+- libm3chains.so
+- libm3robots.so
+- libm3robot_ctrl.so
+- libm3vehicles.so
 #- /home/meka/mekabot/m3ens/lib/libcontroller_example.so
-hostname: meka-mud
+#hostname: meka-mud
 left_hand: m3hand_mh28
 right_hand: m3hand_mh16
 rt_components:
-#  - controllers: 
+#  - controllers:
 #    - m3example_test: m3example
 - sys:
   - m3monitor_m0: m3monitor

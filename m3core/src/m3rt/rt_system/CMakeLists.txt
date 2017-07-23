@@ -34,21 +34,16 @@ set(ALL_HDRS
 # Swig
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include(${SWIG_USE_FILE})
-
 include_directories(${PYTHON_INCLUDE_PATH})
-set(CMAKE_SWIG_FLAGS "")
+set(CMAKE_SWIG_FLAGS -O -c++)
 
 set(M3_SWIG_MODULE_NAME "m3rt_system")
-
 set_source_files_properties(${M3_SWIG_MODULE_NAME}.i PROPERTIES CPLUSPLUS ON)
-
 swig_add_module(${M3_SWIG_MODULE_NAME} python ${M3_SWIG_MODULE_NAME}.i ${ALL_SRCS})
-
-swig_link_libraries(${M3_SWIG_MODULE_NAME} ${PYTHON_LIBRARIES} ${LIBS} )
+swig_link_libraries(${M3_SWIG_MODULE_NAME} ${PYTHON_LIBRARIES} m3base rt)
 set_target_properties(${SWIG_MODULE_${M3_SWIG_MODULE_NAME}_REAL_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 add_custom_target(${M3_SWIG_MODULE_NAME} ALL DEPENDS ${SWIG_MODULE_${M3_SWIG_MODULE_NAME}_REAL_NAME} ${ALL_SRCS})
-
-add_custom_target(${LIBNAME} ALL DEPENDS ${M3_SWIG_MODULE_NAME})
+add_custom_target(${LIBNAME}-swig ALL DEPENDS ${M3_SWIG_MODULE_NAME})
 # End swig
 
 

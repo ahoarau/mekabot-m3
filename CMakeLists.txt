@@ -85,7 +85,7 @@ configure_file(setup.bash.in ${CMAKE_CURRENT_BINARY_DIR}/setup.bash)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/setup.bash DESTINATION share)
 
 
+add_subdirectory(holomni_pcv)
+
 add_subdirectory(m3core)
 add_subdirectory(m3meka)
-
-add_subdirectory(holomni_pcv)

@@ -30,6 +30,8 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/stat.h>
 #include <ctime>
 #include <time.h>
+#include <sys/time.h>
+#include <boost/atomic.hpp>
 
 #ifndef __RTAI__
 #include <semaphore.h>

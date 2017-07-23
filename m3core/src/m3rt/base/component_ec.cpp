@@ -1,4 +1,4 @@
-/* 
+/*
 M3 -- Meka Robotics Real-Time Control System
 Copyright (c) 2010 Meka Robotics
 Author: edsinger@mekabot.com (Aaron Edsinger)
@@ -33,10 +33,10 @@ bool M3ComponentEc::SetSlaveEcShm(M3EcSlaveShm * slaves, int slaves_responding)
 					GetName().c_str(),status->serial_number(), status->network_id(), status->product_code());
 	  return true;
 	}
-	
+
 	for (int i=0;i<slaves_responding;i++)
 	{
-	      
+
 		M3EcSlaveShm * slave = &(slaves[i]);
 		//M3_DEBUG("sn: %d  pc: %d  nid: %d\n",slave->serial_number,slave->product_code,slave->network_id);
 		if (slave->active)
@@ -61,10 +61,10 @@ bool M3ComponentEc::ReadConfig(const char * filename)
 	int val;
 	string version;
 	if (!M3Component::ReadConfig(filename)) return false;
-        
+
 	//YAML::Node doc;
 	//if(!m3rt::GetYamlDoc(filename,doc)){return false;}
-        
+
 	const YAML::Node& ec = doc["ethercat"];
 	M3EtherCATStatus * status = GetEcStatus();
 	ec["serial_number"] >> val;
@@ -77,10 +77,10 @@ bool M3ComponentEc::ReadConfig(const char * filename)
 	  {
 		  doc["virtual_mode"] >> val;
 		  virtual_mode = (bool) val;
-	  } catch(...) 
+	  } catch(...)
 	  {
 		  virtual_mode = (bool) 0;
-	  } 
+	  }
 
 
 	//Search to find the registered id to the given name
@@ -114,7 +114,7 @@ void  M3ComponentEc::StepStatus()
 	status->set_operational(1);
 	status->set_al_state(8);
 	status->set_active(1);
-	SetStatusFromPdoVirtual(); 
+	SetStatusFromPdoVirtual();
     }
     else
     {
@@ -125,12 +125,12 @@ void  M3ComponentEc::StepStatus()
 	}
 	//if (!IsStateError())
 		SetStatusFromPdo(shm->status);
-	
+
 	status->set_online(shm->online);
 	status->set_operational(shm->operational);
 	status->set_al_state(shm->al_state);
 	status->set_active(shm->active);
-	//Do this last 
+	//Do this last
 	if (IsEcError() && IsStateError())
 		SetStateError();
         else
@@ -149,7 +149,7 @@ void  M3ComponentEc::StepCommand()
 	if (!shm) return;
 	if (!IsStateOp())
 		ResetCommandPdo(shm->cmd);
-	else	
+	else
 		SetPdoFromCommand(shm->cmd);
   }
 }
@@ -157,7 +157,7 @@ void  M3ComponentEc::StepCommand()
 //Wait to call IsEcError, needs a step to init.
 void  M3ComponentEc::Startup(){SetStateSafeOp();}
 
-		
+
 bool M3ComponentEc::IsEcError()
 {
 	M3EtherCATStatus * status = GetEcStatus();
@@ -213,4 +213,4 @@ void M3ComponentEc::PrettyPrint()
 }
 
 
-}	
+}

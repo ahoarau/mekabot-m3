@@ -1,4 +1,4 @@
-/* 
+/*
 M3 -- Meka Robotics Real-Time Control System
 Copyright (c) 2010 Meka Robotics
 Author: edsinger@mekabot.com (Aaron Edsinger)
@@ -70,7 +70,7 @@ class M3ComponentEc: public M3Component{
          * @param data
          */
         virtual void SetPdoFromCommand(unsigned char * data)=0;
-		
+
 		//Override these to pump virtual hardware data through the system
         /**
          * @brief
@@ -82,7 +82,7 @@ class M3ComponentEc: public M3Component{
          *
          */
         virtual void SetPdoFromCommandVirtual(){};
-		
+
         /**
          * @brief
          *
@@ -147,20 +147,19 @@ class M3ComponentEc: public M3Component{
          */
         virtual void ResetCommandPdo(unsigned char * pdo){memset(pdo,0,MAX_PDO_SIZE_BYTES);}
 	private:
-        M3EcSlaveShm * shm; 
+        M3EcSlaveShm * shm;
         /**
          * @brief
          *
          * @return bool
          */
         bool IsEcError();
-        int pdo_id; 
-        std::vector<std::string> pdo_names; 
-        std::vector<int> pdo_ids; 
-        int tmp_cnt; 
-        bool virtual_mode; 
+        int pdo_id;
+        std::vector<std::string> pdo_names;
+        std::vector<int> pdo_ids;
+        int tmp_cnt;
+        bool virtual_mode;
 };
 
 }
 #endif
-
