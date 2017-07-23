@@ -34,8 +34,6 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 #include "m3/hardware/robot_monitor.h"
 #include "m3/hardware/log_test.h"
 #include "m3/hardware/ctrl_simple.h"
-
-#ifdef __RTAI__
 #include "m3/hardware/actuator_ec.h"
 #include "m3/hardware/pwr_ec.h"
 #include "m3/hardware/loadx1_ec.h"
@@ -47,7 +45,6 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 #include "m3/hardware/led_matrix_ec.h"
 #include "m3/hardware/joint_zlift_shm.h"
 #include "m3/hardware/loadx6_ec.h"
-#endif
 
 ///////////////////////////////////////////////////////
 extern "C"
@@ -100,7 +97,6 @@ m3rt::M3Component * create_m3loadx6(){return new m3::M3LoadX6;}
 m3rt::M3Component * create_m3loadx6_virtual(){return new m3::M3LoadX6Virtual;}
 m3rt::M3Component * create_m3robot_monitor(){return new m3::M3RobotMonitor;}
 m3rt::M3Component * create_m3log_test(){return new m3::M3MekaLogTest;}
-#ifdef __RTAI__
 m3rt::M3Component * create_m3loadx1_ec(){return new m3::M3LoadX1Ec;}
 m3rt::M3Component * create_m3tactile_pps22_ec(){return new m3::M3TactilePPS22Ec;}
 m3rt::M3Component * create_m3loadx6_ec(){return new m3::M3LoadX6Ec;}
@@ -112,7 +108,6 @@ m3rt::M3Component * create_m3led_matrix_ec_shm(){return new m3::M3LedMatrixEcShm
 m3rt::M3Component * create_m3led_x2xn_ec_shm(){return new m3::M3LedX2XNEcShm;}
 m3rt::M3Component * create_m3actuator_ec(){return new m3::M3ActuatorEc;}
 m3rt::M3Component * create_m3pwr_ec(){return new m3::M3PwrEc;}
-#endif
 m3rt::M3Component * create_m3ctrl_simple(){return new m3::M3CtrlSimple;}
 //Deletors
 
@@ -194,8 +189,6 @@ public:
     m3rt::creator_factory[M3CTRL_SIMPLE_NAME] =	create_m3ctrl_simple;
     m3rt::destroyer_factory[M3CTRL_SIMPLE_NAME] =  destroy_m3ctrl_simple;
 
-#ifdef __RTAI__
-
     m3rt::creator_factory[M3_LOADX1_EC_TYPE_NAME] =	create_m3loadx1_ec;
     m3rt::destroyer_factory[M3_LOADX1_EC_TYPE_NAME] =  destroy_m3loadx1_ec;
 
@@ -228,8 +221,6 @@ public:
 
     m3rt::creator_factory[M3LED_X2XN_EC_SHM_TYPE_NAME] =	create_m3led_x2xn_ec_shm;
     m3rt::destroyer_factory[M3LED_X2XN_EC_SHM_TYPE_NAME] =  destroy_m3led_x2xn_ec_shm;
-#endif
-
 
 	}
 

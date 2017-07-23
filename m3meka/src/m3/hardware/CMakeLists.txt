@@ -28,6 +28,17 @@ pwr_virtual.cpp
 robot_monitor.cpp
 sensor.cpp
 transmission.cpp
+actuator_ec.cpp
+joint_zlift_shm.cpp
+led_matrix_ec.cpp
+led_matrix_ec_shm.cpp
+ledx2_ec.cpp
+ledx2xn_ec.cpp
+ledx2xn_ec_shm.cpp
+loadx1_ec.cpp
+loadx6_ec.cpp
+pwr_ec.cpp
+tactile_pps22_ec.cpp
 )
 
 set( ALL_HDRS
@@ -74,21 +85,6 @@ transmission.h
 
 )
 
-if(RTAI_FOUND)
-	list(APPEND ALL_SRCS
-	actuator_ec.cpp
-	joint_zlift_shm.cpp
-	led_matrix_ec.cpp
-	led_matrix_ec_shm.cpp
-	ledx2_ec.cpp
-	ledx2xn_ec.cpp
-	ledx2xn_ec_shm.cpp
-	loadx1_ec.cpp
-	loadx6_ec.cpp
-	pwr_ec.cpp
-	tactile_pps22_ec.cpp
-	)
-endif()
 
 list(APPEND ALL_SRCS ${ProtoSources})
 

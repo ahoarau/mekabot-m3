@@ -11,19 +11,13 @@ set(LIBS ${LIBS} ${YAMLCPP_LIBRARIES} ${PROTOBUF_LIBRARIES} pthread ${Boost_LIBR
 ## Get all the files sources and headers
 set( all_srcs
 	component_async.cpp
-	component.cpp
-
+	component_ec.cpp
 	component_factory.cpp
+	component_shm.cpp
+	component.cpp
 	simple_server.cpp
 	toolbox.cpp
 )
-
-if(RTAI_FOUND)
-	list(APPEND all_srcs
-		component_ec.cpp
-		component_shm.cpp
-	)
-endif()
 
 set(all_hdrs
 	component_async.h

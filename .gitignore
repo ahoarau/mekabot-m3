@@ -1,6 +1,6 @@
 
 # Created by https://www.gitignore.io/api/c,qt,osx,c++,linux,cmake,python,windows,qtcreator,kdevelop4
-
+install/
 ### C ###
 # Prerequisites
 *.d

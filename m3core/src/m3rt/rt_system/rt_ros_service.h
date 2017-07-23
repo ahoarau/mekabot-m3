@@ -1,4 +1,4 @@
-/* 
+/*
 M3 -- Meka Robotics Real-Time Control System
 Copyright (c) 2010 Meka Robotics
 Author: edsinger@mekabot.com (Aaron Edsinger)
@@ -25,18 +25,6 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <ros/ros.h>
 
-#ifdef __RTAI__
-#ifdef __cplusplus
-extern "C" {
-#endif 
-#include <rtai.h>
-#include "rtai_sem.h"
-#ifdef __cplusplus
-}  // extern "C"
-#endif 
-#endif
-
-
 namespace m3rt
 {
 
@@ -45,7 +33,7 @@ class M3RtRosService
 public:
 	M3RtRosService(M3RtSystem * s):sys(s),num_clients(0)
 	{
-		
+
 	}
 	bool Startup();					//Called by M3RtService
 	void Shutdown();				//Called by M3RtService
@@ -66,7 +54,7 @@ private:
 	M3RtSystem * sys;
 	int hlt;
 	int num_clients;
-	
+
 };
 
 }

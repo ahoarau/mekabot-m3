@@ -21,9 +21,7 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 #include "m3rt/base/component.h"
 #include "m3/robots/humanoid.h"
 #include "m3/robots/haptic_demo.h"
-#ifdef __RTAI__
 #include "m3/robots/humanoid_shm.h"
-#endif
 ///////////////////////////////////////////////////////
 extern "C"
 {
@@ -36,9 +34,7 @@ extern "C"
 ///////////////////////////////////////////////////////
 //Creators
 m3rt::M3Component * create_m3humanoid(){return new m3::M3Humanoid;}
-#ifdef __RTAI__
 m3rt::M3Component * create_m3humanoid_shm(){return new m3::M3HumanoidShm;}
-#endif
 m3rt::M3Component * create_m3haptic_demo(){return new m3::M3HapticDemo;}
 //Deletors
 void destroy_m3humanoid(m3rt::M3Component* c) {delete c;}
@@ -52,10 +48,8 @@ public:
 	{
 		m3rt::creator_factory[M3HUMANOID_TYPE_NAME] =	create_m3humanoid;
 		m3rt::destroyer_factory[M3HUMANOID_TYPE_NAME] =  destroy_m3humanoid;
-#ifdef __RTAI__
 		m3rt::creator_factory[M3HUMANOID_SHM_TYPE_NAME] =	create_m3humanoid_shm;
 		m3rt::destroyer_factory[M3HUMANOID_SHM_TYPE_NAME] =  destroy_m3humanoid_shm;
-#endif
 		m3rt::creator_factory[M3HAPTIC_DEMO_TYPE_NAME] =	create_m3haptic_demo;
 		m3rt::destroyer_factory[M3HAPTIC_DEMO_TYPE_NAME] =  destroy_m3haptic_demo;
 	}

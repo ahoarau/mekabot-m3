@@ -1,4 +1,4 @@
-/* 
+/*
 M3 -- Meka Robotics Real-Time Control System
 Copyright (c) 2010 Meka Robotics
 Author: edsinger@mekabot.com (Aaron Edsinger)
@@ -25,8 +25,9 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 #include "m3rt/base/toolbox.h"
 #include "m3rt/base/component.h"
 #include "m3rt/base/component_ec.h"
+
 #include "m3rt/base/component_factory.h"
-#include "m3rt/base/component_base.pb.h" 
+#include "m3rt/base/component_base.pb.h"
 #include "m3rt/rt_system/rt_log_service.h"
 //#include "m3rt/rt_system/rt_ros_service.h"
 #include <string>
@@ -35,21 +36,19 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef __RTAI__
 #ifdef __cplusplus
 extern "C" {
-#endif 
+#endif
 #include <rtai.h>
 #include "rtai_sem.h"
 #ifdef __cplusplus
 }  // extern "C"
-#endif 
+#endif
 #endif
 #include <semaphore.h>
 #include <pthread.h>
 #include <sys/time.h>
 #include <algorithm>
 
-#ifdef __cplusplus11__
-#include <atomic>
-#endif
+#include <boost/atomic.hpp>
 
 namespace m3rt
 {
@@ -219,24 +218,13 @@ public:
      * @return bool
      */
     bool WaitForEcComponents(mReal timeout_ns=3e9);
-#ifdef __RTAI__
-    /**
-     * @brief
-     *
-     * @return int
-     */
+
     int GetEcCounter(){return shm_ec->counter;}
-    SEM * ready_sem; 
-    SEM * sync_sem; 
-    SEM * shm_sem; 
-    SEM * ext_sem; 
-#else
-    sem_t * shm_sem;
-    sem_t * sync_sem;
-    sem_t * ext_sem;
-    sem_t * ready_sem;
-    int GetEcCounter(){return 0;}
-#endif
+    SEM * ready_sem;
+    SEM * sync_sem;
+    SEM * shm_sem;
+    SEM * ext_sem;
+
     /**
      * @brief
      *
@@ -271,43 +259,36 @@ public:
      */
     bool SerializeStatusToExt(M3StatusAll & msg, std::vector<std::string>& names); //Must be thread safe
     int over_step_cnt;
-#ifdef __cplusplus11__
-    std::atomic<bool> logging; 
-    std::atomic<bool> sys_thread_end;
-    std::atomic<bool> sys_thread_active;
-#else
-    bool logging; 
-    bool sys_thread_end;
-    bool sys_thread_active;
-#endif
+
+    boost::atomic<bool> logging;
+    boost::atomic<bool> sys_thread_end;
+    boost::atomic<bool> sys_thread_active;
 private:
     /**
      * @brief
      *
      */
     void CheckComponentStates();
-    M3ComponentFactory * factory; 
-    M3EcSystemShm *  shm_ec; 
-#ifdef __cplusplus11__
-    std::atomic<bool> safeop_required;
-#else
-    bool safeop_required;
-#endif
-    bool hard_realtime; 
-    std::vector<M3ComponentEc *>	m3ec_list; 
-    std::vector<M3Component *>	m3rt_list; 
+    M3ComponentFactory * factory;
+
+    boost::atomic<bool> safeop_required;
+
+    bool hard_realtime;
+    std::vector<M3ComponentEc *>	m3ec_list;
+    std::vector<M3Component *>	m3rt_list;
+    M3EcSystemShm *  shm_ec;
 #ifdef __RTAI__
-    RTIME last_cycle_time; 
+    RTIME last_cycle_time;
 #else
     long long last_cycle_time;
 #endif
-    M3RtLogService * log_service; 
+    M3RtLogService * log_service;
 
-    std::vector<int> idx_map_ec; 
-    std::vector<int> idx_map_rt; 
-    long hst; 
-    double test; 
-	
+    std::vector<int> idx_map_ec;
+    std::vector<int> idx_map_rt;
+    long hst;
+    double test;
+
 protected:
     template <class T>
     /**
@@ -324,16 +305,9 @@ protected:
 	}
 	return false;
     }
-#ifdef __RTAI__
-    /**
-     * @brief
-     *
-     * @return SEM
-     */
+
     SEM * GetExtSem(){return ext_sem;}
-#else
-    sem_t * GetExtSem(){return ext_sem;}
-#endif
+
 	// Here we read the config files in robot_config1:robot_config_add:robot_config_overlap
 	template <class T>
     /**
@@ -401,7 +375,7 @@ protected:
 				M3_INFO("No %s key in %s. Proceeding without it...\n",component_type,filename.c_str());
 				return true;
 			}
-			
+
 #ifdef YAMLCPP_03
 			const YAML::Node& components = doc[component_type];
 			for(YAML::Iterator it = components.begin(); it != components.end(); ++it) {
@@ -412,7 +386,7 @@ protected:
 			for(YAML::const_iterator it_rt = components.begin();it_rt != components.end(); ++it_rt) {
 				std::string dir = it_rt->first.as<std::string>();
 #endif
-				
+
 #ifdef YAMLCPP_03
 				for(YAML::Iterator it_dir = components[dir.c_str()].begin();
 					it_dir != components[dir.c_str()].end(); ++it_dir) {
@@ -529,5 +503,3 @@ protected:
 
 }
 #endif
-
-

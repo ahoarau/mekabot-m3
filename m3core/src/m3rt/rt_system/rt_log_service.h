@@ -1,4 +1,4 @@
-/* 
+/*
 M3 -- Meka Robotics Real-Time Control System
 Copyright (c) 2010 Meka Robotics
 Author: edsinger@mekabot.com (Aaron Edsinger)
@@ -25,17 +25,6 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 #include "m3rt/base/toolbox.h"
 #include <string>
 
-#ifdef __RTAI__
-#ifdef __cplusplus
-extern "C" {
-#endif 
-#include <rtai.h>
-#include "rtai_sem.h"
-#ifdef __cplusplus
-}  // extern "C"
-#endif 
-#endif
-
 
 namespace m3rt
 {
@@ -52,7 +41,7 @@ public:
 	M3RtLogService(M3RtSystem * s, std::string n, std::string p, mReal freq,int ps,int vb):
 		sys(s),name(n),path(p),start_idx(0),page(NULL),entry(NULL),page_size(ps),verbose(vb),num_page_write(0),num_kbyte_write(0),num_kbytes_in_buffer(0),entry_idx(0),page_idx_read(0),page_idx_write(0),pages_written(0)
 	{
-		downsample_rate = MAX(0,((int)((mReal)RT_TASK_FREQUENCY)/freq)-1); 
+		downsample_rate = MAX(0,((int)((mReal)RT_TASK_FREQUENCY)/freq)-1);
 		downsample_cnt=0;
 	}
     /**
@@ -114,7 +103,7 @@ public:
      */
     void MarkPageFull();
 private:
-	
+
     /**
      * @brief
      *
@@ -122,27 +111,27 @@ private:
      * @return std::string
      */
     std::string GetNextFilename(int num_entry);
-    std::string name; 
-    std::string path; 
-    M3StatusAll * entry; 
-    std::vector<M3StatusLogPage*> pages; 
-    std::vector<bool> is_page_full; 
-    std::vector<M3Component *> components; 
-    int start_idx; 
-    int downsample_cnt; 
-    int downsample_rate; 
-    M3StatusLogPage * page; 
-    M3RtSystem * sys; 
-    int page_size; 
-    int hlt; 
-    int verbose; 
+    std::string name;
+    std::string path;
+    M3StatusAll * entry;
+    std::vector<M3StatusLogPage*> pages;
+    std::vector<bool> is_page_full;
+    std::vector<M3Component *> components;
+    int start_idx;
+    int downsample_cnt;
+    int downsample_rate;
+    M3StatusLogPage * page;
+    M3RtSystem * sys;
+    int page_size;
+    int hlt;
+    int verbose;
     int num_page_write; 
-    int num_kbyte_write; 
-    int num_kbytes_in_buffer; 
-    int entry_idx; 
-    int page_idx_write; 
-    int page_idx_read; 
-    int pages_written; 
+    int num_kbyte_write;
+    int num_kbytes_in_buffer;
+    int entry_idx;
+    int page_idx_write;
+    int page_idx_read;
+    int pages_written;
 };
 
 }

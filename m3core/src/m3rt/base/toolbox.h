@@ -1,4 +1,4 @@
-/* 
+/*
 M3 -- Meka Robotics Real-Time Control System
 Copyright (c) 2010 Meka Robotics
 Author: edsinger@mekabot.com (Aaron Edsinger)
@@ -30,6 +30,41 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/stat.h>
 #include <ctime>
 #include <time.h>
+
+#ifndef __RTAI__
+#include <semaphore.h>
+#define SEM sem_t
+#define rt_sem_wait sem_wait
+#define rt_sem_init sem_init
+#define rt_typed_sem_init sem_init
+#define rt_sem_signal sem_post
+#define rt_sem_delete sem_destroy
+
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <pthread.h>
+
+#endif
+
+#ifdef __RTAI__
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include <rtai.h>
+#include <rtai_registry.h>
+#include <rtai_lxrt.h>
+#include <rtai_shm.h>
+#include <rtai_sched.h>
+#include <rtai_nam2num.h>
+#include <rtai_sem.h>
+#include <rtai_malloc.h>
+#ifdef __cplusplus
+}  // extern "C"
+#endif
+#endif
+
+
 namespace m3rt
 {
 
@@ -66,8 +101,8 @@ void M3_DEBUG(const char * format, ...);
  * @return bool
  */
 inline bool file_exists (const std::string& name) {
-  struct stat buffer;   
-  return (stat (name.c_str(), &buffer) == 0); 
+  struct stat buffer;
+  return (stat (name.c_str(), &buffer) == 0);
 }
 
 /**
@@ -170,7 +205,7 @@ bool GetYamlDoc(const char* filename, YAML::Node& doc);
  * @return bool
  */
 bool GetYamlStream(const char* filename, YAML::Emitter& out);
-#ifndef YAMLCPP_03	
+#ifndef YAMLCPP_03
 template <typename _T >
 /**
  * @brief
@@ -203,7 +238,7 @@ inline void operator >> (const YAML::Node &node, std::vector<mReal> & v)
 		v.push_back(x);
 	}
 }
-#endif 
+#endif
 
 /**
  * @brief
@@ -245,4 +280,3 @@ bool GetAllYamlDocs(std::vector< std::string > vpath, std::vector< YAML::Node >&
 
 
 #endif
-

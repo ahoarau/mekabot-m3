@@ -20,9 +20,7 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "m3rt/base/component.h"
 #include "m3/vehicles/omnibase.h"
-#ifdef __RTAI__
 #include "m3/vehicles/omnibase_shm.h"
-#endif
 ///////////////////////////////////////////////////////
 extern "C"
 {
@@ -34,9 +32,7 @@ extern "C"
 ///////////////////////////////////////////////////////
 //Creators
 m3rt::M3Component * create_m3omnibase(){return new m3::M3Omnibase;}
-#ifdef __RTAI__
 m3rt::M3Component * create_m3omnibase_shm(){return new m3::M3OmnibaseShm;}
-#endif
 //Deletors
 void destroy_m3omnibase(m3rt::M3Component* c) {delete c;}
 void destroy_m3omnibase_shm(m3rt::M3Component* c) {delete c;}
@@ -48,10 +44,8 @@ public:
 	{
 		m3rt::creator_factory[M3OMNIBASE_TYPE_NAME] =	create_m3omnibase;
 		m3rt::destroyer_factory[M3OMNIBASE_TYPE_NAME] =  destroy_m3omnibase;
-#ifdef __RTAI__
 		m3rt::creator_factory[M3OMNIBASE_SHM_TYPE_NAME] =	create_m3omnibase_shm;
 		m3rt::destroyer_factory[M3OMNIBASE_SHM_TYPE_NAME] =  destroy_m3omnibase_shm;
-#endif
 	}
 };
 ///////////////////////////////////////////////////////

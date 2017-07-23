@@ -12,6 +12,7 @@ factory_proxy.cpp
 haptic_demo.cpp
 humanoid.cpp
 robot.cpp
+humanoid_shm.cpp
 
 )
 set( ALL_HDRS
@@ -23,12 +24,6 @@ humanoid_shm_sds.h
 robot.h
 
 )
-
-if(RTAI_FOUND)
-  list(APPEND ALL_SRCS
-    humanoid_shm.cpp
-  )
-endif()
 
 list(APPEND ALL_SRCS ${ProtoSources})
 

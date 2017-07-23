@@ -1,4 +1,4 @@
-/* 
+/*
 M3 -- Meka Robotics Real-Time Control System
 Copyright (c) 2010 Meka Robotics
 Author: edsinger@mekabot.com (Aaron Edsinger)
@@ -27,22 +27,7 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 #include "m3rt/rt_system/rt_log_service.h"
 #include "m3rt/rt_system/rt_system.h"
 
-#ifdef __RTAI__
-#ifdef __cplusplus
-extern "C" {
-#endif 
-#include <rtai.h>
-#include <rtai_sem.h>
-#ifdef __cplusplus
-}  // extern "C"
-#endif 
-#else
-#include <pthread.h>
-#include <semaphore.h>
-#endif
 
-//No m3rt namespace for swig-ability
-	
 /**
  * @brief
  *
@@ -254,19 +239,19 @@ public:
     bool IsDataServiceError();
 private:
     int hlt; /**< The thread created at Startup()*/
-    m3rt::M3RtSystem  * rt_system; 
-    m3rt::M3ComponentFactory factory; //Can only create one instance of this. 
-    std::vector<m3rt::M3RtDataService*> data_services; 
-    m3rt::M3RtLogService *log_service; 
-    std::vector<std::string> log_components; 
+    m3rt::M3RtSystem  * rt_system;
+    m3rt::M3ComponentFactory factory; //Can only create one instance of this.
+    std::vector<m3rt::M3RtDataService*> data_services;
+    m3rt::M3RtLogService *log_service;
+    std::vector<std::string> log_components;
 #ifdef __RTAI__
-    RT_TASK *svc_task; 
+    RT_TASK *svc_task;
 #else
-	int * svc_task; // to preserve initializer
+		int * svc_task; // to preserve initializer
 #endif
-    std::vector<int> ports; 
-    int next_port; 
-    int num_rtsys_attach; 
+    std::vector<int> ports;
+    int next_port;
+    int num_rtsys_attach;
 };
 
 

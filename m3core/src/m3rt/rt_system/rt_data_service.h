@@ -26,21 +26,6 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 #include "m3rt/rt_system/rt_system.h"
 #include <pthread.h>
 #include <string>
-
-#ifdef __RTAI__
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include <rtai.h>
-#include "rtai_sem.h"
-#ifdef __cplusplus
-}  // extern "C"
-#endif
-#else
-#include <semaphore.h>
-#include <pthread.h>
-#endif
-
 #include <boost/atomic.hpp>
 
 namespace m3rt
@@ -98,11 +83,7 @@ private:
     M3RtSystem * sys;
     std::vector<std::string> status_names;
     long hdt;
-#ifdef __RTAI__
-    SEM * ext_sem;
-#else
-	sem_t * ext_sem;
-#endif
+		SEM * ext_sem;
 };
 
 }

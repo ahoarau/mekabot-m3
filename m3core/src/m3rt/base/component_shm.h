@@ -1,4 +1,4 @@
-/* 
+/*
 M3 -- Meka Robotics Real-Time Control System
 Copyright (c) 2010 Meka Robotics
 Author: edsinger@mekabot.com (Aaron Edsinger)
@@ -22,21 +22,7 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "m3rt/base/component.h"
 #include "m3rt/base/component_base.pb.h"
-//#include <m3rt/toolbox/toolbox.h>
-#ifdef __cplusplus
-extern "C" {
-#endif 
-#include <rtai_registry.h>
-#include <rtai.h>
-#include <rtai_lxrt.h>
-#include <rtai_shm.h>
-#include <rtai_sched.h>
-#include <rtai_nam2num.h>
-#include <rtai_sem.h>
-#include <rtai_malloc.h> 
-#ifdef __cplusplus
-}  // extern "C"
-#endif 
+
 #include "m3rt/base/m3rt_def.h"
 #include "m3rt/base/m3ec_def.h"
 #include "m3rt/base/toolbox.h"
@@ -45,7 +31,7 @@ extern "C" {
 namespace m3rt
 {
 ////////////////////////////////////////////////////////////////
- 
+
 /**
  * @brief
  *
@@ -53,8 +39,8 @@ namespace m3rt
 class M3CompShm: public M3Component{
 	public:
 		M3CompShm(int p=EC_PRIORITY):M3Component(p),shm(NULL),status_sem(NULL), command_sem(NULL){}
-		
-	protected:		
+
+	protected:
         /**
          * @brief
          *
@@ -116,29 +102,28 @@ class M3CompShm: public M3Component{
          * @brief
          *
          */
-        void request_status(){rt_sem_wait(status_sem);}
+        void request_status();
         /**
          * @brief
          *
          */
-        void release_status(){rt_sem_signal(status_sem);}
+        void release_status();
         /**
          * @brief
          *
          */
-        void request_command(){rt_sem_wait(command_sem);}
+        void request_command();
         /**
          * @brief
          *
          */
-        void release_command(){rt_sem_signal(command_sem);}
+        void release_command();
 	private:
-        M3Sds * shm;				 
-        SEM * status_sem; 
-        SEM * command_sem;	 
-        std::string shm_id; 
+        M3Sds * shm;
+        SEM * status_sem;
+        SEM * command_sem;
+        std::string shm_id;
 };
 
 }
 #endif
-

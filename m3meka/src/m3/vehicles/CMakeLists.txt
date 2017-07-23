@@ -12,6 +12,7 @@ set( ALL_SRCS
 factory_proxy.cpp
 omnibase.cpp
 vehicle.cpp
+omnibase_shm.cpp
 )
 
 set( ALL_HDRS
@@ -20,10 +21,6 @@ omnibase_shm.h
 omnibase_shm_sds.h
 vehicle.h
 )
-
-if(RTAI_FOUND)
-  list(APPEND ALL_SRCS omnibase_shm.cpp)
-endif()
 
 list(APPEND ALL_SRCS ${ProtoSources})
 
