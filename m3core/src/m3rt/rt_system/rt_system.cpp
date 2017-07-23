@@ -405,6 +405,8 @@ bool M3RtSystem::StartupComponents()
 
     ext_sem = rt_typed_sem_init(nam2num(SEMNAM_M3LEXT), 1, BIN_SEM);
 #else
+    shm_ec = new M3EcSystemShm;
+    memset(shm_ec,0,sizeof(M3EcSystemShm));
     ext_sem = new sem_t();
     sem_init(ext_sem, 1, 1);
 #endif
@@ -423,10 +425,10 @@ bool M3RtSystem::StartupComponents()
         M3_ERR("Unable to find the M3READY semaphore.\n");
         //return false;
     }
-    M3_INFO("Matching Kernel EC components with config file...\n");
+    M3_INFO("Matching Kernel EC components with config file... %d components to process ...\n",m3ec_list.size());
     int rm_cnt=0;
     for(vector<M3ComponentEc *>::iterator it_ec=m3ec_list.begin();it_ec!=m3ec_list.end();/*++it_ec*/){
-        if((*it_ec)->SetSlaveEcShm(shm_ec->slave, shm_ec->slaves_responding) == false){
+        if(!shm_ec || (*it_ec)->SetSlaveEcShm(shm_ec->slave, shm_ec->slaves_responding) == false){
             factory->ReleaseComponent((*it_ec));
             m3ec_list.erase(it_ec);
             rm_cnt++;

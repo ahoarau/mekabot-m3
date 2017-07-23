@@ -1,4 +1,4 @@
-/* 
+/*
 M3 -- Meka Robotics Robot Components
 Copyright (c) 2010 Meka Robotics
 Author: edsinger@mekabot.com (Aaron Edsinger)
@@ -23,23 +23,6 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 #include "m3/toolbox/trajectory.pb.h"
 #include "m3/toolbox/toolbox.h"
 
-#ifdef __RTAI__
-#ifdef __cplusplus
-extern "C" {
-#endif 
-#include <rtai_registry.h>
-#include <rtai.h>
-#include <rtai_lxrt.h>
-#include <rtai_shm.h>
-#include <rtai_sched.h>
-#include <rtai_nam2num.h>
-#include <rtai_sem.h>
-#include <rtai_malloc.h> 
-#ifdef __cplusplus
-}  // extern "C"
-#endif 
-
-#endif
 #define RESERVED_VECTOR_SIZE 10000
 namespace m3
 {
@@ -50,9 +33,9 @@ namespace m3
 //Handle smooth joint trajectories using cubic splines.
 //See Craig, Intro to Robotics, Joint space schemes
 //New vias can be added dynamically.
-	
 
-//From http://www.shadmehrlab.org/book/minimumjerk.pdf 
+
+//From http://www.shadmehrlab.org/book/minimumjerk.pdf
 //Note: error in text for a2 term. Should be D**2
 class M3MinJerkTrajectory
 {
@@ -77,11 +60,11 @@ class M3MinJerkTrajectory
 //Handle smooth joint trajectories using cubic splines.
 //See Craig, Intro to Robotics, Joint space schemes
 //New vias can be added dynamically.
-	
+
 class JointSplineSegment
 {
 	public:
-		JointSplineSegment(JntArray & q_0, JntArray & q_f, 
+		JointSplineSegment(JntArray & q_0, JntArray & q_f,
 				   JntArray & qdot_0,JntArray & qdot_f,mReal tf)
 		{
 			int nq = q_0.rows();
@@ -96,10 +79,10 @@ class JointSplineSegment
 				a2(i)=(3/(pow(tf,2)))*(q_f(i)-q_0(i))-(2/tf) * qdot_0(i)-(1/tf)*qdot_f(i);
 				a3(i)=(-2/(pow(tf,3)))*(q_f(i)-q_0(i))+(1/pow(tf,2))*(qdot_f(i)+qdot_0(i));
 			}
-			
+
 			//a2=(3/ (pow(tf,2)))*(q_f-q_0)-(2/tf)  * qdot_0-(1/tf)*qdot_f;
 			//a3=(-2/(pow(tf,3)))*(q_f-q_0)+(1/pow(tf,2))*(qdot_f+qdot_0);
-						
+
 			duration=tf;
 		}
 		mReal GetTimeElapsed(){return elapsed;}
@@ -116,7 +99,7 @@ class JointSplineSegment
 			}
 			for (int i=0; i<nq; i++)
 				q(i) = a0(i)+a1(i)*duration+a2(i)*pow(duration,2)+a3(i)*pow(duration,3);
-			
+
 			return false;
 		}
 	private:
@@ -167,5 +150,3 @@ class M3JointTrajectory
 
 
 #endif
-
-

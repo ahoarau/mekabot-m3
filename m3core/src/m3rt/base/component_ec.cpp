@@ -25,6 +25,11 @@ using namespace std;
 //Search for matching slave ID
 bool M3ComponentEc::SetSlaveEcShm(M3EcSlaveShm * slaves, int slaves_responding)
 {
+	if(slaves == NULL)
+	{
+		M3_ERR("M3EcSlaveShm * slaves was NULL, abording.\n");
+		return false;
+	}
 	M3EtherCATStatus * status = GetEcStatus();
 	shm=NULL;
 	if (virtual_mode)
