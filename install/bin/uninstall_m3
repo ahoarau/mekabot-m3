@@ -1,0 +1,26 @@
+#!/bin/bash
+
+echo "************************************************"
+echo "Are you sure you want to unistall completely m3 (location : /home/hoarau/dev/mekabot/install) ? (y/n)"
+read a
+if [[ $a == "N" || $a == "n" ]]; then
+        echo "m3 NOT unistalled"
+elif [[ $a == "Y" || $a == "y" ]]; then
+
+echo 'Removing libraries.'
+sudo rm -rf /home/hoarau/dev/mekabot/install/lib/libm3*
+echo 'Removing header files and scripts.'
+sudo rm -rf /home/hoarau/dev/mekabot/install/include/m3/
+sudo rm -rf /home/hoarau/dev/mekabot/install/bin/m3/
+sudo rm -rf /home/hoarau/dev/mekabot/install/bin/m3*
+sudo rm -rf /home/hoarau/dev/mekabot/install/include/m3rt/
+sudo rm -rf /home/hoarau/dev/mekabot/install/bin/m3rt/
+sudo rm -rf /home/hoarau/dev/mekabot/install/share/m3/setup.bash
+sudo rm -rf /home/hoarau/dev/mekabot/install/share/setup.bash
+echo 'Removing python scripts.'
+sudo rm -rf /home/hoarau/dev/mekabot/install/lib/python2.7/dist-packages/m3*
+sudo rm -rf /home/hoarau/dev/mekabot/install/lib/python2.7/dist-packages/m3/
+sudo rm -rf /home/hoarau/dev/mekabot/install/lib/python2.7/dist-packages/m3rt/
+sudo rm -rf /opt/m3/ ## New path
+echo 'm3 successfuly unistalled.'
+fi

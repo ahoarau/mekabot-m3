@@ -1,0 +1,3 @@
+eyes:
+ left: /meka_eyes/left/image_rect_color
+ right: /meka_eyes/right/image_rect_color

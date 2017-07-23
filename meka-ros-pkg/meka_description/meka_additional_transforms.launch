@@ -1,0 +1,8 @@
+<launch>
+<!--node pkg="tf" type="static_transform_publisher" name="T0" args="0 0 0.2337 0 0 0 upper T0 100" /-->
+<node pkg="tf" type="static_transform_publisher" name="meka_static_head" args="0.15 0 0.20 0.15 0 0 T0 meka_static_head 100" />
+<node pkg="tf" type="static_transform_publisher" name="kinect_front" args="0.0953 0 0 0 0 0 T0 kinect_front_link 100" />
+<node pkg="tf" type="static_transform_publisher" name="openni_tracker_to_meka" args="0 0 0 0 0 0 kinect_front_link openni_depth_frame 100" />
+<node pkg="tf" type="static_transform_publisher" name="openni2_tracker_to_meka" args="0 0 0 1.57079632679 0 1.57079632679 kinect_front_link openni2_depth_frame 100" />
+<include file="$(find meka_description)/kinect_top_extrinsics.launch"/>
+</launch>

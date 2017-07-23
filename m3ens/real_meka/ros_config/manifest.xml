@@ -1,0 +1,18 @@
+<package>
+  <description brief="m3_defs_ros">
+
+     m3ros
+
+  </description>
+  <author>meka</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://pr.willowgarage.com/wiki/m3ros</url>
+  <depend package="rviz"/>  
+  <depend package="tf"/>
+  <depend package="urdf"/>
+  <depend package="xacro"/>
+  <depend package="robot_state_publisher"/>
+</package>
+
+

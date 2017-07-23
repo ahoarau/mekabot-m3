@@ -1,0 +1,12 @@
+kinect_top :
+ device_id: A00366912558044A
+ serial_nb: A00366912558044A
+ camera_name: kinect_top
+ depth_registration: false
+
+kinect_front :
+ device_id: 1@3
+ serial_nb: 1205220158
+ camera_name: kinect_front
+ depth_registration: false
+ camera_frame_id: openni_depth_frame

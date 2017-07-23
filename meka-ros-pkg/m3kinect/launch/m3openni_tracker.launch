@@ -1,0 +1,5 @@
+<launch>
+<rosparam file="$(env M3_ROBOT)/ros_config/kinect/m3kinect_params.yml" command="load" />
+<node name="m3openni_tracker" pkg="m3openni_tracker" type="m3openni_tracker" output="screen">
+</node>
+</launch>

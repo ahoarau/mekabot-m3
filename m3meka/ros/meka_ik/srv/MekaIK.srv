@@ -1,0 +1,7 @@
+string arm_name
+float32[3] end_position
+float32[3] end_rpy
+float32[7] angles_current
+---
+bool success
+float32[7] angles_solution

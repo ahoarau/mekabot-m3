@@ -1,0 +1,8 @@
+<launch>
+<!-- Robot parameter server -->
+<include file="$(find meka_description)/m3ens_shm.launch"/>
+
+<node pkg="meka_description" type="meka_ros_state.py" output="screen" name="joint_publisher"/>
+
+</launch>
+

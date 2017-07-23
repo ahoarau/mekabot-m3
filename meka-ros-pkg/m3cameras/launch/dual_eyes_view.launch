@@ -1,0 +1,10 @@
+<!--rosrun image_view image_view image:=/cameraX/camera/image_rect_color-->
+
+<launch>
+  <node pkg="image_view" type="image_view" name="left_eye" >
+      <remap from="image" to="/meka_eyes/left/image_raw" />      
+    </node>
+<node pkg="image_view" type="image_view" name="right_eye" >
+      <remap from="image" to="/meka_eyes/right/image_raw" />      
+    </node>
+</launch>

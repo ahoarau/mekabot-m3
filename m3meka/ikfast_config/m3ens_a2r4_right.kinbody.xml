@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- just the kinematic body of the 7 DOF version of the Whole Arm Manipulator,
+     real robots are defined in other files and have attached hands.
+ -->
+<KinBody name="M3">
+ <Body name="link0" type="dynamic">
+    <Translation>0 0 0</Translation>
+    <Geom type="box">	    
+	    <Extents>0.01 0.01 0.01</Extents>
+    </Geom>
+    <mass type="custom">
+      <total>10.</total>
+    </mass>
+  </Body>
+
+  <Body name="link1" type="dynamic">
+    <offsetfrom>link0</offsetfrom>
+    <Translation>0.0 -0.18465 0.0</Translation>
+    <RotationMat>0 1 0 0 0 -1 -1 0 0</RotationMat>
+    <Geom type="box">	    
+	    <Extents>0.01 0.01 0.01</Extents>
+    </Geom>
+    <mass type="custom">
+      <total>1.</total>
+    </mass>
+  </Body>
+
+
+  <Joint name="J0" type="hinge">
+    <Body>link0</Body>
+    <Body>link1</Body>
+    <offsetfrom>link1</offsetfrom>
+    <axis>0 0 1</axis>
+    <!--limitsdeg>-80 200</limitsdeg-->
+    <limitsdeg>-180 180</limitsdeg>
+    <weight>2</weight>
+    <maxvel>1.</maxvel>
+    <rotorinertia>0 0 0.000466939</rotorinertia>
+    <maxtorque>11.6</maxtorque>
+    <resolution>.25</resolution>
+  </Joint>
+
+  <Body name="link2" type="dynamic">
+    <offsetfrom>link1</offsetfrom>
+    <Translation>0  0  0</Translation>
+    <RotationMat>0 -1 0 0 0 -1 1 0 0</RotationMat>
+    <Geom type="box">	    
+	    <Extents>0.01 0.01 0.01</Extents>
+    </Geom>
+    <mass type="custom">
+      <total>4.8487</total>
+    </mass>
+  </Body>
+
+  <Joint name="J1" type="hinge">
+    <Body>link1</Body>
+    <Body>link2</Body>
+    <offsetfrom>link2</offsetfrom>
+    <axis>0 0 1</axis>
+    <!--limitsdeg>-23 150</limitsdeg-->
+    <limitsdeg>-180 180</limitsdeg>
+    <weight>2</weight>
+    <maxvel>1.0</maxvel>
+    <rotorinertia>0 0 0.000466939</rotorinertia>
+    <maxtorque>11.6</maxtorque>
+    <resolution>.25</resolution>
+  </Joint>
+  <Body name="link3" type="dynamic">
+    <offsetfrom>link2</offsetfrom>
+    <Translation>0.03175 0 0</Translation>
+    <RotationMat>0 -1 0 0 0 -1 1 0 0</RotationMat>
+    <Geom type="box">	    
+	    <Extents>0.01 0.01 0.01</Extents>
+    </Geom>
+    <mass type="custom">
+      <total>1.</total>
+    </mass>
+  </Body>
+  <Joint name="J2" type="hinge">
+    <Body>link2</Body>
+    <Body>link3</Body>
+    <offsetfrom>link3</offsetfrom>
+    <axis>0 0 1</axis>
+    <!--limitsdeg>-85 85</limitsdeg-->
+    <limitsdeg>-180 180</limitsdeg>
+    <weight>2</weight>
+    <maxvel>1.</maxvel>
+    <rotorinertia>0 0 0.000466939</rotorinertia>
+    <resolution>.25</resolution>
+  </Joint>
+  <Body name="link4" type="dynamic">
+    <offsetfrom>link3</offsetfrom>
+    <Translation>-0.00502 0 0.27857</Translation>
+    <RotationMat>1 0 0 0 0 -1 0 1 0</RotationMat>
+    <Geom type="box">	    
+	    <Extents>0.01 0.01 0.01</Extents>
+    </Geom>
+    <mass type="custom">
+      <total>1.</total>
+    </mass>
+  </Body>
+  <Joint name="J3" type="hinge">
+    <Body>link3</Body>
+    <Body>link4</Body>
+    <offsetfrom>link4</offsetfrom>
+    <axis>0 0 1</axis>
+    <!--limitsdeg>-0 132</limitsdeg-->
+    <limitsdeg>-180 180</limitsdeg>
+    <weight>2</weight>
+    <maxvel>1.</maxvel>
+    <rotorinertia>0 0 0.000466939</rotorinertia>
+    <resolution>.25</resolution>
+  </Joint>
+  <Body name="link5" type="dynamic">
+    <offsetfrom>link4</offsetfrom>
+    <Translation>0 0 0</Translation>
+    <RotationMat>1 0 0 0 0 1 0 -1 0</RotationMat>
+    <Geom type="box">	    
+	    <Extents>0.01 0.01 0.01</Extents>
+    </Geom>
+    <mass type="custom">
+      <total>1.</total>
+    </mass>
+  </Body>
+  <Joint name="J4" type="hinge">
+    <Body>link4</Body>
+    <Body>link5</Body>
+    <offsetfrom>link5</offsetfrom>
+    <axis>0 0 1</axis>
+    <!--limitsdeg>-19 199</limitsdeg-->
+    <limitsdeg>-180 180</limitsdeg>
+    <weight>1</weight>
+    <maxvel>1.</maxvel>
+    <rotorinertia>0 0 0.000466939</rotorinertia>
+    <maxtorque>11.6</maxtorque>
+    <resolution>.25</resolution>
+  </Joint>
+
+  <Body name="link6" type="dynamic">
+    <offsetfrom>link5</offsetfrom>
+    <Translation>0 0 0.27747</Translation>
+    <RotationMat>0 -1 0 0 0 -1 1 0 0</RotationMat>
+    <Geom type="box">	    
+	    <Extents>0.01 0.01 0.01</Extents>
+    </Geom>
+    <mass type="custom">
+      <total>1.</total>
+    </mass>
+  </Body>
+
+  <Joint name="J5" type="hinge">
+    <Body>link5</Body>
+    <Body>link6</Body>
+    <offsetfrom>link6</offsetfrom>
+    <axis>0 0 1</axis>
+    <!--limitsdeg>-58 58</limitsdeg-->
+    <limitsdeg>-180 180</limitsdeg>
+    <weight>1</weight>
+    <maxvel>1</maxvel>
+    <rotorinertia>0 0 0.000466939</rotorinertia>
+    <maxtorque>11.6</maxtorque>
+    <resolution>.25</resolution>
+  </Joint>
+  <Body name="link7" type="dynamic">
+    <offsetfrom>link6</offsetfrom>
+    <Translation>0.0  0.0  0.0</Translation>
+    <RotationMat>0 -1 0 0 0 -1 1 0 0</RotationMat>
+    <Geom type="box">	    
+	    <Extents>0.01 0.01 0.01</Extents> 
+    </Geom>
+    <mass type="custom">
+      <total>1.</total>
+    </mass>
+  </Body>
+
+  <Joint name="J6" type="hinge">
+    <Body>link6</Body>
+    <Body>link7</Body>
+    <offsetfrom>link7</offsetfrom>
+    <axis>0 0 1</axis>
+    <!--limitsdeg>-60 60</limitsdeg-->
+    <limitsdeg>-180 180</limitsdeg>
+    <weight>1</weight>
+    <maxvel>1.</maxvel>
+    <resolution>.25</resolution>
+    <rotorinertia>0 0 0.000466939</rotorinertia>
+    <maxtorque>11.6</maxtorque>
+  </Joint>
+
+  <adjacent>link1 link3</adjacent>
+  <adjacent>link4 link6</adjacent>
+  <adjacent>link4 link7</adjacent>
+</KinBody>

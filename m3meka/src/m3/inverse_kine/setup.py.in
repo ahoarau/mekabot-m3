@@ -1,0 +1,11 @@
+from distutils.core import setup
+setup(
+    name = "inverse_kine",
+    package_dir={ '': '${CMAKE_CURRENT_SOURCE_DIR}' },
+    packages = ["m3"],
+    version = "1.6.1",
+    description = "Python bindings for the M3 real time control software",
+    author = "Meka Robotics LLC",
+    author_email = "info@mekabot.com",
+    url = "http://mekabot.com",
+)

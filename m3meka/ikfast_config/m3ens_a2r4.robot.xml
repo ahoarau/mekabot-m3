@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Robot name="Meka">
+ <KinBody file="m3ens_a2r4_right.kinbody.xml"/>
+ <Manipulator name="m3ens_right_arm">
+  <base>link0</base>
+  <effector>link7</effector>
+  <!--joints>J0 J1 J2 J3 J4 J5 J6</joints>	
+  <closed>-25</closed>
+  <opened>20</opened>
+  <Translation>0 0 0</Translation-->
+  <!--closingdirection>1 1 1 0</closingdirection-->
+  <!--direction>0 0 1</direction-->
+  <!--iksolver type="Transform6D">
+        <free_joint joint="J2"/>
+      </iksolver-->
+ </Manipulator>
+
+ <!--kinbody>
+   <body name="handbase">
+     <offsetfrom>link7</offsetfrom>
+     <Geom type="box">	    
+      <Extents>0.01 0.01 0.01</Extents>
+    </Geom>
+   </body>
+   <joint name="dummyhand" type="hinge" enable="false">
+     <body>link7</body>
+     <body>handbase</body>
+     <limits>0 0</limits>
+   </joint>
+ </kinbody-->
+
+
+</Robot>

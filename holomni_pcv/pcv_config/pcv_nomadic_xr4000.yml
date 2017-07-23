@@ -1,0 +1,37 @@
+name: base_b1_r1
+
+gains:
+  KPx_: 1200 #Preliminary
+  KPa_: 1100 #Preliminary
+  KVx_: 4 #Preliminary
+  KVa_: 2 #Preliminary
+mass:
+  avg_mass: 1.0  #Preliminary
+  avg_inertia: 1.0 #Preliminary
+filter:
+  FQD: 150 #Preliminary
+  FGXD: 52 #Preliminary
+  FCXDD: 0 #Preliminary
+  FTE: 30 #Preliminary
+  FXD: 52 #Preliminary
+  FTQS: 42 #Preliminary
+caster:
+  XR_h: 0.2159  #Preliminary
+  ENC_REV2CNT: 8192.0   #Preliminary
+  b: -.02 #(-0.020*0.995) #Preliminary
+  r: 1 #( 0.055*1.000) #Preliminary
+  f: -0.010 #Preliminary
+  Mf: 2.800 #Preliminary
+  If: 3.26e-3 #Preliminary
+  Ih: 4.78e-4 #Preliminary
+  Ii: 9.84e-5 #Preliminary
+  Is: 2.46e-4 #Preliminary
+  It: 2.58e-4 #Preliminary
+  Ij: 3.84e-4 #Preliminary
+  Ns: 3.0 # 93.0/28.0 #Preliminary
+  Nt: 2.0 # 85.0/36.0 #Preliminary
+  Nw: 2.0 # 2.0/ 1.0 #Preliminary
+  px: 0.0 #Preliminary
+  py: 0.0 #Preliminary
+  Mp: 11.0 #Preliminary
+  Ip: 0.052 #Preliminary

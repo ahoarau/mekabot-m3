@@ -1,0 +1,26 @@
+#!/bin/bash
+
+echo "************************************************"
+echo "Are you sure you want to unistall completely m3 (location : ${CMAKE_INSTALL_PREFIX}) ? (y/n)"
+read a
+if [[ $a == "N" || $a == "n" ]]; then
+        echo "m3 NOT unistalled"
+elif [[ $a == "Y" || $a == "y" ]]; then
+
+echo 'Removing libraries.'
+sudo rm -rf ${CMAKE_INSTALL_PREFIX}/lib/libm3*
+echo 'Removing header files and scripts.'
+sudo rm -rf ${CMAKE_INSTALL_PREFIX}/include/m3/
+sudo rm -rf ${CMAKE_INSTALL_PREFIX}/bin/m3/
+sudo rm -rf ${CMAKE_INSTALL_PREFIX}/bin/m3*
+sudo rm -rf ${CMAKE_INSTALL_PREFIX}/include/m3rt/
+sudo rm -rf ${CMAKE_INSTALL_PREFIX}/bin/m3rt/
+sudo rm -rf ${CMAKE_INSTALL_PREFIX}/share/m3/setup.bash
+sudo rm -rf ${CMAKE_INSTALL_PREFIX}/share/setup.bash
+echo 'Removing python scripts.'
+sudo rm -rf ${CMAKE_INSTALL_PREFIX}/lib/python2.7/dist-packages/m3*
+sudo rm -rf ${CMAKE_INSTALL_PREFIX}/lib/python2.7/dist-packages/m3/
+sudo rm -rf ${CMAKE_INSTALL_PREFIX}/lib/python2.7/dist-packages/m3rt/
+sudo rm -rf /opt/m3/ ## New path
+echo 'm3 successfuly unistalled.'
+fi

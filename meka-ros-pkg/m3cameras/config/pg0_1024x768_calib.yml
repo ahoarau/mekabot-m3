@@ -1,0 +1,20 @@
+# M3ens Left Eye camera (pg0)
+image_width: 800
+image_height: 600
+camera_name: 00b09d0100a85c7f
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [1445.079488, 0, 574.200820, 0, 1459.976276, 231.256628, 0, 0, 1.000000]
+distortion_coefficients:
+  rows: 1
+  cols: 5
+  data: [-0.180826, 0.132474, -0.015881, 0.003797, 0.000000]
+rectification_matrix:
+  rows: 3
+  cols: 3
+  data: [1.000000, 0.000000, 0.000000, 0.000000, 1.000000, 0.000000, 0.000000, 0.000000, 1.000000]
+projection_matrix:
+  rows: 3
+  cols: 4
+  data: [1412.450195, 0, 578.328567, 0, 0, 1415.990967, 223.553838, 0, 0, 0, 1.000000, 0]

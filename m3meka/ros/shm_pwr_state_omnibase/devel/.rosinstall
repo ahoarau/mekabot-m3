@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/meka/mekabot/m3meka/ros/shm_pwr_state_omnibase/devel/setup.sh

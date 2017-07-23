@@ -1,0 +1,2 @@
+#!/bin/sh
+${DESTDIR}/usr/realtime/bin/rtai-load

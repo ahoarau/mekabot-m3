@@ -1,0 +1,23 @@
+<launch>
+
+  <!-- run both cameras in the stereo_example namespace -->
+  <group ns="meka_eyes" >
+
+    <!-- left camera -->
+    <node pkg="camera1394" type="camera1394_node" name="left_node" >
+      <rosparam file="$(env HOME)/mekabot/m3ens/ros_config/cameras/point_grey_0.yml" />
+      <remap from="camera" to="left" />
+    </node>
+    <node ns="left" pkg="image_proc" type="image_proc" name="left_proc"/>
+<!-- node pkg="image_transport" type="republish" name="republish_left" args="compressed in:=/meka_eyes/left/image_raw out:=/meka/left/image_comp"/ -->
+
+    <!-- right camera -->
+    <node pkg="camera1394" type="camera1394_node" name="right_node" >
+      <rosparam file="$(env HOME)/mekabot/m3ens/ros_config/cameras/point_grey_1.yml" />
+      <remap from="camera" to="right" />
+    </node>  
+    <node ns="right" pkg="image_proc" type="image_proc" name="left_proc"/>
+<!-- node pkg="image_transport" type="republish" name="republish_right" args="compressed in:=/meka_eyes/right/image_raw raw out:=/meka_eyes/right/image_comp"/ -->
+
+  </group>
+</launch>

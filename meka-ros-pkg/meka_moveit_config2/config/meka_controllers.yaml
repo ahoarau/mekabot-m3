@@ -1,0 +1,40 @@
+controller_list:
+  - name: /right_position_trajectory_controller
+#  - name: /right_velocity_trajectory_controller
+    action_ns: follow_joint_trajectory
+    type: FollowJointTrajectory
+    default: true
+    joints:
+      - right_arm_j0
+      - right_arm_j1
+      - right_arm_j2
+      - right_arm_j3
+      - right_arm_j4
+      - right_arm_j5
+      - right_arm_j6
+  - name: /left_position_trajectory_controller
+#  - name: /left_velocity_trajectory_controller
+    action_ns: follow_joint_trajectory
+    type: FollowJointTrajectory
+    default: true
+    joints:
+      - left_arm_j0
+      - left_arm_j1
+      - left_arm_j2
+      - left_arm_j3
+      - left_arm_j4
+      - left_arm_j5
+      - left_arm_j6
+
+#  - name: /robot/baxter_right_gripper_action
+#    action_ns: gripper_action
+#    type: GripperCommand
+#    default: true
+#    joints:
+#      - right_gripper_l_finger_joint
+#  - name: /robot/baxter_left_gripper_action
+#    action_ns: gripper_action
+#    type: GripperCommand
+#    default: true
+#    joints:
+#      - left_gripper_l_finger_joint

@@ -1,0 +1,5 @@
+<launch>
+<include file="$(find meka_description)/m3ens.launch"/>
+<node pkg="rviz" type="rviz" respawn="false" output="screen" name="rviz"/>
+</launch>
+

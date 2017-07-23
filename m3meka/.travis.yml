@@ -1,0 +1,52 @@
+language: cpp
+
+compiler:
+  - gcc
+
+
+## Prereqs : 
+## Yamlcpp 0.5.1
+## findXXX.cmake
+## m3core
+
+before_install:
+  - sudo apt-get install -qq swig moc cmake libeigen3-dev libprotobuf-dev protobuf-compiler libboost-dev python-dev python-protobuf python-matplotlib python-yaml python-gnuplot python-scipy python-sip-dev python-sip
+  - export CI_SOURCE_PATH=$(pwd)
+  - wget http://yaml-cpp.googlecode.com/files/yaml-cpp-0.5.1.tar.gz
+  - tar -xf yaml-cpp-0.5.1.tar.gz
+  - cd yaml-cpp-0.5.1
+  - mkdir build;cd build;
+  - cmake .. -DBUILD_SHARED_LIBS=1
+  - make -j$(nproc)
+  - sudo make install
+  - git clone https://github.com/ahoarau/meka-cmake-modules.git
+  - cd meka-cmake-modules
+  - mkdir build; cd build
+  - cmake .. -DOVERWRITE=1
+  - sudo make install
+  - git clone https://github.com/ahoarau/m3core.git
+  - cd m3core
+  - mkdir build; cd build
+  - cmake ..
+  - make -j$(nproc)
+  - sudo make install
+ 
+install:
+  #- wget http://perso.ensta-paristech.fr/~hoarau/rtmeka-kern/$(uname -p)/linux-image-rt.deb
+  #- sudo dpkg -i linux-headers-rt.deb 
+  #- sudo dpkg -i linux-image-rt.deb
+  ### Get the kernel dir from the debian
+  #- rtkernel=$(dpkg-deb --info linux-headers-rt.deb |grep Package -m 1 | grep -Po "linux-headers-\K(.*)")
+  #build m3core
+  - cd $CI_SOURCE_PATH
+  - mkdir build
+  - cd build
+  #-DKERNEL_NAME=$rtkernel..
+  #-DCMAKE_BUILD_TYPE=$M3CORE_BUILD_TYPE .. 
+  - cmake .. 
+  
+script:
+  # compile and install m3core
+  - make -j$(nproc)
+  - sudo make install
+#  - cpack ..

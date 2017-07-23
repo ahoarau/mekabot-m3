@@ -1,0 +1,16 @@
+<launch>
+<arg name="depth_registration_front" default="false" />
+<arg name="depth_registration_top" default="true" />
+
+
+<!-- FRONT KINECT -->
+<!--include file="$(find m3kinect)/launch/m3kinect_front.launch">
+<arg name="depth_registration" value="$(arg depth_registration_front)" />
+</include-->
+
+<!-- TOP KINECT -->
+<include file="$(find m3kinect)/launch/m3kinect2_top.launch">
+<arg name="depth_registration" value="$(arg depth_registration_top)" />
+</include>
+
+</launch>

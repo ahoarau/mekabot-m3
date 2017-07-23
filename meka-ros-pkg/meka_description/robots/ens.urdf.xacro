@@ -1,0 +1,115 @@
+<?xml version="1.0"?>
+<robot xmlns:sensor="http://playerstage.sourceforge.net/gazebo/xmlschema/#sensor"
+       xmlns:controller="http://playerstage.sourceforge.net/gazebo/xmlschema/#controller"
+       xmlns:interface="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       xmlns:xacro="http://playerstage.sourceforge.net/gazebo/xmlschema/#interface"
+       name="meka" >
+
+ <property name="M_PI" value="3.1415926535897931" />
+
+ 
+ <property name="MESH" value="meka_description/meshes/mid_res" />
+ <property name="MESH_COLL" value="meka_description/meshes/low_res" />
+
+<!-- generic simulator_gazebo plugins for starting mechanism control, ros time, ros battery >
+ <xacro:include filename="$(find meka_description)/gazebo/gazebo.urdf.xacro" /-->
+ <!--<xacro:include filename="$(find meka_description)/transmissions/uta.transmission.xacro" />-->
+ <link name="world" />
+
+ <link name="base_link" />
+ <!-- Solid Base -->
+ <joint name="base_joint" type="fixed">
+  <origin xyz="0 0 0" rpy="0 0 0" />
+  <parent link="world" />
+  <child link="base_link" />
+ </joint>
+
+    
+  <xacro:meka_base  side="r" reflect="1" parent="base_link">
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+  </xacro:meka_base>
+
+  <xacro:meka_zlift  side="r" reflect="1" parent="dummy_3">
+    <origin xyz="0.43 0.0 0.75" rpy="0 0 0" />
+  </xacro:meka_zlift>
+
+  <!-- Solid Base -->
+
+
+<!-- Meka Base -->
+  <xacro:include filename="$(find meka_description)/urdf/B1R2B_defs.urdf.xacro" />
+
+<!-- Meka Zlift -->
+  <xacro:include filename="$(find meka_description)/urdf/Z1R2B_defs.urdf.xacro" />
+
+<!-- Meka Arm -->
+  <xacro:include filename="$(find meka_description)/urdf/A2R4_r_arm_defs.urdf.xacro" />
+
+  <xacro:include filename="$(find meka_description)/urdf/A2R4_l_arm_defs.urdf.xacro" />
+  
+
+  <!-- Meka Hand -->
+  <xacro:include filename="$(find meka_description)/urdf/H2R4_r_hand_defs.urdf.xacro" />
+
+  <xacro:include filename="$(find meka_description)/urdf/H2R4_l_hand_defs.urdf.xacro" />
+
+  
+<!-- Meka Head -->
+  <xacro:include filename="$(find meka_description)/urdf/ENS_head_defs.urdf.xacro" />
+
+
+
+  <!-- john added transmissions >
+  <xacro:include filename="$(find meka_description)/transmissions/A2R4_r_arm_defs.transmission.xacro" />
+
+  <xacro:include filename="$(find meka_description)/transmissions/A2R4_l_arm_defs.transmission.xacro" /-->
+  <!--<xacro:include filename="$(find meka_description)/transmissions/H2R2_r_hand_defs.transmission.xacro" />-->
+  <!--<xacro:include filename="$(find meka_description)/transmissions/S2R1_head_defs.transmission.xacro" />-->
+
+
+   <property name="M_PI" value="3.1415926535897931" />
+  <material name="GreyA"> <!-- darkest -->
+    <color rgba="0.3 0.3 0.3 1.0"/>
+  </material>
+  
+  <material name="GreyB">
+    <color rgba="0.5 0.5 0.5 1.0"/>
+  </material>
+  
+  <material name="GreyC">
+    <color rgba="0.7 0.7 0.7 1.0"/>
+  </material>
+  
+
+
+  <!-- john added transmissions >
+  <xacro:m3_r_arm_transmission side="r" reflect="-1" parent="upper"/>
+  <xacro:m3_l_arm_transmission side="l" reflect="1" parent="upper"/-->
+  <!--</m3_r_hand_transmission-->
+  
+  <xacro:m3_r_hand side="r" reflect="-1" parent="handmount_RIGHT">
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+  </xacro:m3_r_hand>
+  
+  <xacro:m3_l_hand side="l" reflect="1" parent="handmount_LEFT">
+    <origin xyz="0.0 0.0 0.0" rpy="0 0 0" />
+  </xacro:m3_l_hand>
+ 
+
+  <xacro:m3_head side="r" reflect="1" parent="upper">
+    <origin xyz="0.0 0.0 0.31155" rpy="0 0 0" />
+  </xacro:m3_head>
+
+ <xacro:m3_r_arm side="r" reflect="-1" parent="upper">
+    <origin xyz="0.0 -0.18465 0.2337" rpy="0 0 0" />
+  </xacro:m3_r_arm>
+
+ <xacro:m3_l_arm side="l" reflect="1" parent="upper">
+    <origin xyz="0.0 0.18465 0.2337" rpy="0 0 0" />
+  </xacro:m3_l_arm>
+
+  
+
+
+</robot>
+  

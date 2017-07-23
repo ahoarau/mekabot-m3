@@ -1,0 +1,7 @@
+<!--rosrun image_view image_view image:=/cameraX/camera/image_rect_color-->
+
+<launch>
+  <node pkg="image_view" type="stereo_view" name="meka_eyes_stereo_view" 
+      args="stereo:=/meka_eyes image:=image_rect_color">
+    </node>
+</launch>

@@ -1,0 +1,5 @@
+string arm_name
+float32[7] joint_angles
+---
+float32[3] end_position
+float32[3] end_rpy

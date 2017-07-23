@@ -1,0 +1,13 @@
+kinect_top:
+ rgb: /kinect_top/rgb/image_rect_color
+ depth: /kinect_top/depth/image_rect
+ depth_registered: /kinect_top/depth_registered/image_rect
+ points: /kinect_top/depth/points
+ points_registered: /kienct_top/depth_registered/points
+
+kinect_front:
+ rgb: /kinect_front/rgb/image_rect_color
+ depth: /kinect_front/depth/image_rect
+ depth_registered: /kinect_front/depth_registered/image_rect
+ points: /kinect_front/depth/points
+ points_registered: /kienct_front/depth_registered/points

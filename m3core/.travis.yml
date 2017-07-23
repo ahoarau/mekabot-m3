@@ -1,0 +1,44 @@
+language: cpp
+
+compiler:
+  - gcc
+  - clang
+
+#env:
+#  - M3CORE_BUILD_TYPE=Debug
+#  - M3CORE_BUILD_TYPE=Release
+  
+before_install:
+  - export CI_SOURCE_PATH=$(pwd)
+  - wget http://yaml-cpp.googlecode.com/files/yaml-cpp-0.3.0.tar.gz
+  - tar -xf yaml-cpp-0.3.0.tar.gz
+  - cd yaml-cpp
+  - mkdir build;cd build;
+  - cmake .. -DBUILD_SHARED_LIBS=1
+  - make -j$(nproc)
+  - sudo make install
+  - git clone https://bitbucket.org/ensta/meka-cmake-modules.git
+  - cd meka-cmake-modules
+  - mkdir build; cd build
+  - cmake .. -DOVERWRITE=1
+  - sudo make install
+  
+install:
+  - sudo apt-get install -qq swig moc cmake libeigen3-dev libprotobuf-dev protobuf-compiler libboost-dev python-dev python-protobuf python-matplotlib python-yaml python-gnuplot python-scipy python-sip-dev python-sip
+  #- wget http://perso.ensta-paristech.fr/~hoarau/rtmeka-kern/$(uname -p)/linux-image-rt.deb
+  #- sudo dpkg -i linux-headers-rt.deb 
+  #- sudo dpkg -i linux-image-rt.deb
+  ### Get the kernel dir from the debian
+  #- rtkernel=$(dpkg-deb --info linux-headers-rt.deb |grep Package -m 1 | grep -Po "linux-headers-\K(.*)")
+  #build m3core
+  - cd $CI_SOURCE_PATH
+  - mkdir build
+  - cd build
+  #-DKERNEL_NAME=$rtkernel..
+  #-DCMAKE_BUILD_TYPE=$M3CORE_BUILD_TYPE .. 
+  - cmake .. 
+  
+script:
+  # compile and install m3core
+  - make -j$(nproc)
+  - sudo make install

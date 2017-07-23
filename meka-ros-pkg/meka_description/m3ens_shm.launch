@@ -1,0 +1,18 @@
+<launch>
+<!-- Robot parameter server -->
+<rosparam file="$(find meka_description)/kinect/m3kinect_params.yml" command="load" />
+<!-- ROBOT Description (URDF Model) -->
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find meka_description)/robots/ens.urdf.xacro'" />
+
+  <!--node pkg="rviz" type="rviz" respawn="false" output="screen" name="rviz"/-->
+
+  <!-- Robot state publisher -->
+<node pkg="robot_state_publisher" type="state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="50.0" />
+    <param name="tf_prefix" type="string" value="" />
+  </node>
+
+<!-- Zero robot tf, kinect and head -->
+<include file="$(find meka_description)/meka_additional_transforms.launch"/>
+</launch>
+

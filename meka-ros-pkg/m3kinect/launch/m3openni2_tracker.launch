@@ -1,0 +1,6 @@
+<launch>
+<rosparam file="$(env M3_ROBOT)/ros_config/kinect/m3kinect_params.yml" command="load" />
+<param name="camera_frame_id" value="/kinect_front_depth_frame" />
+<node name="openni2_tracker" pkg="openni2_tracker" output="screen" type="openni2_tracker" >
+</node>
+</launch>
