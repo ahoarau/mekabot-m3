@@ -183,14 +183,21 @@ void *rt_system_thread(void *arg)
     m3sys->sys_thread_active = true;
 
     while(1) {
-        if(m3sys->sys_thread_end) break;
+        if(m3sys->sys_thread_end)
+        {
+          M3_INFO("System thread end required, exiting realtime loop...\n");
+          break;
+        }
 #ifdef __RTAI__
         start = rt_get_cpu_time_ns();
 #else
         start = getNanoSec();
 #endif
         if(!m3sys->Step(safeop_only))  //This waits on m3ec.ko semaphore for timing
+        {
+            M3_ERR("m3system step for all components returned false, exiting realtime loop...\n");
             break;
+        }
 #ifdef __RTAI__
         end = rt_get_cpu_time_ns();
         dt = end - start;
@@ -254,6 +261,7 @@ void *rt_system_thread(void *arg)
     rt_make_soft_real_time();
     rt_task_delete(task);
 #endif
+    M3_INFO("Realtime loop exited.\n");
     m3sys->sys_thread_active = false;
     return 0;
 }

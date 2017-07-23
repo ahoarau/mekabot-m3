@@ -31,6 +31,16 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 #include <ctime>
 #include <sstream>
 #include <map>
+
+#define RED   "\x1B[31m"
+#define GRN   "\x1B[32m"
+#define YEL   "\x1B[33m"
+#define BLU   "\x1B[34m"
+#define MAG   "\x1B[35m"
+#define CYN   "\x1B[36m"
+#define WHT   "\x1B[37m"
+#define RESET "\x1B[0m"
+
 namespace m3rt
 {
 using namespace std;
@@ -50,7 +60,7 @@ void M3_WARN(const char *format, ...)
     va_list args;
     va_start(args, format);
     vsprintf(buffer, format, args);
-    printf("M3 WARNING: ");
+    printf(YEL "M3 WARNING: ");
     printf("%s", buffer);
     /*	 if (pFile)
          {
@@ -58,6 +68,7 @@ void M3_WARN(const char *format, ...)
             fprintf(pFile,"%s", buffer);
             fclose (pFile);
          }*/
+    printf(RESET);
     va_end(args);
 }
 
@@ -76,13 +87,14 @@ void M3_ERR(const char *format, ...)
     va_list args;
     va_start(args, format);
     vsprintf(buffer, format, args);
-    printf("M3 ERROR: ");
+    printf(RED "M3 ERROR: ");
     printf("%s", buffer);
     if(pFile) {
         fprintf(pFile, "M3 ERROR: ");
         fprintf(pFile, "%s", buffer);
         fclose(pFile);
     }
+    printf(RESET);
     va_end(args);
 }
 
@@ -400,15 +412,15 @@ bool GetAllYamlDocs(std::vector<std::string> vpath, std::vector<YAML::Node>& doc
 std::string GetYamlDoc(const char* filename, YAML::Node& doc, void * )
 {
     if(!filename) return std::string();
-    
+
     vector<string> vpath;
     if(!GetFileConfigPath(filename,vpath)) return std::string();
 
     vector<string> vpath_root;
-    
+
     if(!GetRobotConfigPath(vpath_root)) return std::string();
     if(vpath.size()!=vpath_root.size()) return std::string();
-    
+
     std::vector<std::pair<string,string> > paths;
     for(size_t i=0;i<vpath.size();i++)
         paths.push_back(pair<string,string>(vpath[i],vpath_root[i]));

@@ -92,7 +92,23 @@ void  M3CompShm::Startup()
 #else
 	command_sem = sem_open ((shm_id+"C").c_str(), O_CREAT, 0660, 0);
 	status_sem = sem_open ((shm_id+"S").c_str(), O_CREAT, 0660, 0);
+
+	if(command_sem == SEM_FAILED)
+	{
+		M3_ERR("Could not create command semaphore\n");
+	}
+
+	if(status_sem == SEM_FAILED)
+	{
+		M3_ERR("Could not create command semaphore\n");
+	}
+
 	int fd = shm_open((shm_id+"M").c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	if(fd == -1)
+	{
+		M3_ERR("Could not create posix shared memory\n");
+		return;
+	}
 	ftruncate(fd, sizeof(M3Sds));
 	shm = (M3Sds*)mmap(NULL, sizeof(M3Sds),PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 #endif
