@@ -90,8 +90,8 @@ namespace m3rt
         status_sem = rt_typed_sem_init(nam2num((shm_id+"S").c_str()), 1, BIN_SEM | FIFO_Q );
         shm = (M3Sds*)rt_shm_alloc(nam2num((shm_id+"M").c_str()),sizeof(M3Sds),USE_VMALLOC);
 #else
-        command_sem = sem_open ((shm_id+"C").c_str(), O_CREAT, 0660, 0);
-        status_sem = sem_open ((shm_id+"S").c_str(), O_CREAT, 0660, 0);
+        command_sem = sem_open ((shm_id+"C").c_str(), O_CREAT, S_IRUSR | S_IWUSR, 0);
+        status_sem = sem_open ((shm_id+"S").c_str(), O_CREAT, S_IRUSR | S_IWUSR, 0);
 
         if(command_sem == SEM_FAILED)
         {

@@ -35,10 +35,10 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef __RTAI__
 #include <semaphore.h>
+
+#define RTIME long long
 #define SEM sem_t
 #define rt_sem_wait sem_wait
-#define rt_sem_init sem_init
-#define rt_typed_sem_init sem_init
 #define rt_sem_signal sem_post
 #define rt_sem_delete sem_destroy
 

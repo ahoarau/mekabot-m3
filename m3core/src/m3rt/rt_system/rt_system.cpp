@@ -345,19 +345,11 @@ bool M3RtSystem::Shutdown()
 #endif
     }
     if(ext_sem != NULL) {
-#ifdef __RTAI__
         rt_sem_delete(ext_sem);
-#else
-        delete ext_sem;
-#endif
         ext_sem = NULL;
     }
     if(ready_sem != NULL) {
-#ifdef __RTAI__
         rt_sem_delete(ready_sem);
-#else
-        delete ready_sem;
-#endif
         ready_sem = NULL;
     }
 #ifdef __RTAI__
@@ -367,6 +359,7 @@ bool M3RtSystem::Shutdown()
     shm_ec = NULL;
     shm_sem = NULL;
     sync_sem = NULL;
+    M3_INFO("Releaseing all components\n");
     factory->ReleaseAllComponents();
     M3_INFO("Shutdown of M3RtSystem complete\n");
     return true;
@@ -382,6 +375,7 @@ bool M3RtSystem::StartupComponents()
     if(!ReadConfig(M3_CONFIG_FILENAME,"rt_components",this->m3rt_list,this->idx_map_rt))
         return false;
     M3_INFO("Done reading components config files.\n");
+
 #ifdef __RTAI__
     main_task = rt_task_init_schmod(nam2num("M3MAIN"),RT_TASK_PRIORITY,RT_STACK_SIZE,0,SCHED_FIFO,0xF);
     if(!main_task){
@@ -389,6 +383,7 @@ bool M3RtSystem::StartupComponents()
         return false;
     }
 #endif
+
 #ifdef __RTAI__
     sync_sem = (SEM *)rt_get_adr(nam2num(SEMNAM_M3SYNC));
     if(!sync_sem) {
@@ -415,10 +410,25 @@ bool M3RtSystem::StartupComponents()
 
     ext_sem = rt_typed_sem_init(nam2num(SEMNAM_M3LEXT), 1, BIN_SEM);
 #else
-    shm_ec = new M3EcSystemShm;
+    int fd = shm_open(SHMNAM_M3MKMD, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+    if(fd == -1)
+    {
+        M3_ERR("Could not create posix shared memory\n");
+    }
+    if(ftruncate(fd, sizeof(M3EcSystemShm)) == -1 )
+    {
+        M3_ERR("Could not ftruncate the shared memory\n");
+    }
+    shm_ec = (M3EcSystemShm*)mmap(NULL, sizeof(M3EcSystemShm),PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if(shm_ec == MAP_FAILED)
+    {
+        M3_ERR("mmap failed\n");
+    }
     memset(shm_ec,0,sizeof(M3EcSystemShm));
-    ext_sem = new sem_t();
+    ext_sem  = sem_open(SEMNAM_M3LEXT,O_CREAT, S_IRUSR | S_IWUSR, 0);
     sem_init(ext_sem, 1, 1);
+    sync_sem = sem_open(SEMNAM_M3SYNC,O_CREAT, S_IRUSR | S_IWUSR, 0);
+    sem_init(sync_sem, 1, 1);
 #endif
     if(!ext_sem) {
         M3_ERR("Unable to find the M3LEXT semaphore (probably hasn't been cleared properly, reboot can solve this problem).\n");
@@ -428,7 +438,7 @@ bool M3RtSystem::StartupComponents()
 #ifdef __RTAI__
     ready_sem = rt_typed_sem_init(nam2num(SEMNAM_M3READY), 1, BIN_SEM);
 #else
-    ready_sem = new sem_t();
+    ready_sem = sem_open(SEMNAM_M3READY,O_CREAT, S_IRUSR | S_IWUSR, 0);
     sem_init(ready_sem, 1, 1);
 #endif
     if(!ready_sem) {
@@ -492,8 +502,8 @@ bool M3RtSystem::StartupComponents()
         M3_WARN("No M3 Components could be loaded....\n", 0);
         return false;
     }
-    M3_INFO("Done linking components.\n");
-    M3_INFO("Starting up components ...\n");
+    M3_INFO("Done linking %d components.\n",GetNumComponents());
+    M3_INFO("Starting up %d components ...\n",GetNumComponents());
     for(int i = 0; i < GetNumComponents(); i++) {
         GetComponent(i)->Startup();
     }
