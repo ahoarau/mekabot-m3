@@ -144,9 +144,6 @@ std::vector<mReal> YamlReadVectorM(std::string s);
  * @return std::vector<std::string>
  */
 std::vector<std::string> YamlReadVectorString(std::string s);
-#ifdef YAMLCPP_03
-std::vector<mReal> YamlReadVectorM(const YAML::Node& seq);
-#endif
 /**
  * @brief
  *
@@ -207,40 +204,20 @@ bool GetYamlDoc(const char* filename, YAML::Node& doc);
  * @return bool
  */
 bool GetYamlStream(const char* filename, YAML::Emitter& out);
-#ifndef YAMLCPP_03
+
 template <typename _T >
-/**
- * @brief
- *
- * @param input
- * @param value
- */
 void operator >>(const YAML::Node& input, _T& value) {
 	value = input.as<_T>();
 }
+
 template <typename _T >
-/**
- * @brief
- *
- * @param node
- * @param v
- */
 void operator >> (const YAML::Node &node, std::vector<_T> & v)
 {
 	for(unsigned i = 0; i < node.size(); i++){
 		v.push_back(node[i].as<_T>());
 	}
 }
-#else
-inline void operator >> (const YAML::Node &node, std::vector<mReal> & v)
-{
-	for(unsigned i = 0; i < node.size(); i++) {
-		mReal x;
-		node[i] >> x;
-		v.push_back(x);
-	}
-}
-#endif
+
 
 /**
  * @brief

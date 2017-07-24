@@ -316,14 +316,12 @@ protected:
 			  M3_WARN("Old config file detected, please update your %s\n",(*it).c_str());
 			  continue;
 			}
-#ifndef YAMLCPP_03
 
 			try{
 				ret = this->ReadConfigOrdered(*it,component_type,comp_list,idx_map);
 			}catch(std::exception &e){
 				M3_ERR("Error while reading %s checking for %s config: %s\n",(*it).c_str(),component_type,e.what());
 			}
-#endif
 		}
 		return ret;
 	}
@@ -341,48 +339,26 @@ protected:
 	{
 		try{
 		YAML::Node doc;
-#ifdef YAMLCPP_03
-		std::ifstream fin(filename.c_str());
-		YAML::Parser parser(fin);
-		while(parser.GetNextDocument(doc)) {
-#else
+
 		doc = YAML::LoadFile(filename);
 		if(doc.IsNull()){M3_ERR("%s not found, please update the robot's config files.\n",filename.c_str()); return false;}
-#endif
 
-#ifdef YAMLCPP_03
-			if(!doc.FindValue(component_type)) {
-#else
+
 			if(!doc[component_type]){
-#endif
 				M3_INFO("No %s key in %s. Proceeding without it...\n",component_type,filename.c_str());
 				return true;
 			}
 
-#ifdef YAMLCPP_03
-			const YAML::Node& components = doc[component_type];
-			for(YAML::Iterator it = components.begin(); it != components.end(); ++it) {
-				std::string dir;
-				it.first() >> dir;
-#else
+
 			YAML::Node components = doc[component_type];
 			for(YAML::const_iterator it_rt = components.begin();it_rt != components.end(); ++it_rt) {
 				std::string dir = it_rt->first.as<std::string>();
-#endif
 
-#ifdef YAMLCPP_03
-				for(YAML::Iterator it_dir = components[dir.c_str()].begin();
-					it_dir != components[dir.c_str()].end(); ++it_dir) {
-					std::string  name;
-					std::string  type;
-					it_dir.first() >> name;
-					it_dir.second() >> type;
-#else
+
 				YAML::Node dir_comp = components[dir.c_str()];
 				for(YAML::const_iterator it_dir = dir_comp.begin();it_dir != dir_comp.end(); ++it_dir) {
 					std::string name=it_dir->first.as<std::string>();
 					std::string type=it_dir->second.as<std::string>();
-#endif
 					if(IsComponentInList(name,comp_list))
 					{
 					  M3_WARN("Component %s (of type %s) already loaded, please make sure your component's name is unique.\n",name.c_str(),type.c_str());
@@ -411,16 +387,13 @@ protected:
 				}
 			}
 		return true;
-#ifdef YAMLCPP_03
-		}
-#endif
+
 		}catch(std::exception &e){
 			//M3_ERR("(Unordered) Error while reading %s config (old config): %s\n",component_type,e.what());
 			return false;
 		}
 		std::cout<<std::endl;
 	}
-#ifndef YAMLCPP_03
 	template <class T>
     /**
      * @brief
@@ -480,7 +453,6 @@ protected:
 		std::cout<<std::endl;
 		return true;
 	}
-#endif
 };
 
 

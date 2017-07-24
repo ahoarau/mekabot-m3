@@ -1,25 +1,24 @@
 #include "Pcv.h"
 using namespace std;
-#ifndef YAMLCPP_03
 template < class _T >
-        void operator >>(const YAML::Node& input, _T& value) {
-                try {
-                        value = input.as<_T>();
-                        //input >> value;
-                } catch (YAML::Exception &e) {
-                       std::cout<<"Error converting from YAML! " << e.what()<<std::endl;
-                }
+void operator >>(const YAML::Node& input, _T& value) {
+        try {
+                value = input.as<_T>();
+                //input >> value;
+        } catch (YAML::Exception &e) {
+               std::cout<<"Error converting from YAML! " << e.what()<<std::endl;
         }
-#endif
+}
+
 PCV::PCV(YAML::Node &doc, int step_freq ) : ctrl(NULL)
-{  
+{
   /////////////////////////
   /*   Parse Yaml Files */
   /////////////////////////
   Float num,den;
-  string name;  
+  string name;
   Float temp;
-  doc["name"] >> name;  
+  doc["name"] >> name;
   doc["geometry"]["num_casters"] >> params.geometry.num_casters;
   for (int i = 0; i < params.geometry.num_casters; i++)
   {
@@ -32,11 +31,11 @@ PCV::PCV(YAML::Node &doc, int step_freq ) : ctrl(NULL)
   doc["kinematics"]["abs_max_linear_velocity"] >> params.kinematics.abs_max_linear_velocity;
   doc["kinematics"]["abs_max_rotation_acceleration"] >> params.kinematics.abs_max_rotation_acceleration;
   doc["kinematics"]["abs_max_rotation_velocity"] >> params.kinematics.abs_max_rotation_velocity;
-  
+
   doc["caster"]["Nm_PER_AMP"] >> params.caster.Nm_PER_AMP;
   doc["caster"]["AMPS_PER_VOLT"] >> params.caster.AMPS_PER_VOLT;
   doc["caster"]["ENC_REV2CNT"] >> params.caster.ENC_REV2CNT;
-  doc["caster"]["COUNTS_PER_VOLT"] >> params.caster.COUNTS_PER_VOLT;  
+  doc["caster"]["COUNTS_PER_VOLT"] >> params.caster.COUNTS_PER_VOLT;
   doc["caster"]["b"] >> params.caster.b;
   doc["caster"]["r"] >> params.caster.r;
   doc["caster"]["f"] >> params.caster.f;
@@ -62,7 +61,7 @@ PCV::PCV(YAML::Node &doc, int step_freq ) : ctrl(NULL)
   doc["caster"]["Nw_den"] >> den;
   params.caster.Nw = num/den;
   doc["gains"]["KPx_"] >> params.gains.KPx_;
-  doc["gains"]["KPa_"] >> params.gains.KPa_;  
+  doc["gains"]["KPa_"] >> params.gains.KPa_;
   doc["gains"]["KVx_"] >> params.gains.KVx_;
   doc["gains"]["KVa_"] >> params.gains.KVa_;
   doc["gains"]["KpE_"] >> params.gains.KpE_;
@@ -73,18 +72,18 @@ PCV::PCV(YAML::Node &doc, int step_freq ) : ctrl(NULL)
   doc["filter"]["FGXD"] >> params.filter.FGXD;
   doc["filter"]["FCXDD"] >> params.filter.FCXDD;
   doc["filter"]["FTE"] >> params.filter.FTE;
-  doc["filter"]["FXD"] >> params.filter.FXD;  
-  
-  
+  doc["filter"]["FXD"] >> params.filter.FXD;
+
+
   //MSG("Finished reading config files.\n");
-  
+
   vector<Float> init_x(3,0.0);
-    
+
   ctrl = new Ctrl(step_freq, init_x, params);
   if (ctrl==NULL)
     MSG("Error creating ctrl class.\n");
-  ENC_REV2CNT = params.caster.ENC_REV2CNT;  
-  
+  ENC_REV2CNT = params.caster.ENC_REV2CNT;
+
 }
 
 Pcv_Status PCV::Step(Pcv_Command pcv_cmd)
@@ -94,7 +93,7 @@ Pcv_Status PCV::Step(Pcv_Command pcv_cmd)
 
 void PCV::UpdateGoal(Pcv_Command pcv_cmd)
 {
-  PrVector destPos(3);    
+  PrVector destPos(3);
   destPos[0] = pcv_cmd.traj_goal[0];
   destPos[1] = pcv_cmd.traj_goal[1];
   destPos[2] = pcv_cmd.traj_goal[2];

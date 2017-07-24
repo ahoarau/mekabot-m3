@@ -35,27 +35,7 @@ using namespace std;
 //global factory for making components
 map< string, create_comp_t *, less<string> >  creator_factory;	//global
 map< string, destroy_comp_t *, less<string> > destroyer_factory; //global
-#ifdef YAMLCPP_03
-bool M3ComponentFactory::ReadConfig(const char *filename)
-{
-    YAML::Node doc;
-    YAML::Emitter out;
-    m3rt::GetYamlStream(filename, out);
-    std::stringstream stream(out.c_str());
-    YAML::Parser parser(stream);
-    while(parser.GetNextDocument(doc)) {
-        try {
-            const YAML::Node& factory_rt_libs=doc["factory_rt_libs"];
-            for(unsigned i = 0; i < factory_rt_libs.size(); i++) {
-                string lib;
-                factory_rt_libs[i] >> lib;
-                AddComponentLibrary(lib);
-            }
-        } catch(YAML::BadDereference &e) {cout<<e.what()<<endl;}
-    }
-    return true;
-}
-#else
+
 bool M3ComponentFactory::ReadConfig(const char *filename)
 {
     YAML::Emitter out;
@@ -72,7 +52,7 @@ bool M3ComponentFactory::ReadConfig(const char *filename)
     }
     return true;
 }
-#endif
+
 int M3ComponentFactory::GetComponentIdx(string name)
 {
     for(int idx = 0; idx < GetNumComponents(); idx++) {

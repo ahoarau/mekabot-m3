@@ -14,16 +14,8 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   tf
 )
-## YAML CPP 
-find_package(PkgConfig REQUIRED)
-#find_package(YamlCpp  REQUIRED)
-pkg_check_modules(YAMLCPP REQUIRED yaml-cpp)
-if(${YAMLCPP_VERSION} VERSION_GREATER "0.5")
-set_property(DIRECTORY
-                PROPERTY COMPILE_DEFINITIONS "YAMLCPP_03")
-endif(${YAMLCPP_VERSION} VERSION_GREATER "0.5")
 
-
+find_package(YampCpp REQUIRED)
 find_package(M3rt REQUIRED)
 find_package(RTAI REQUIRED)
 ## System dependencies are found with CMake's conventions
@@ -113,7 +105,7 @@ SET(LIBS ${catkin_LIBRARIES} ${YAMLCPP_LIBRARIES} ${CMAKE_DL_LIBS} ${RTAI_LIBRAR
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
-  ${catkin_INCLUDE_DIRS} 
+  ${catkin_INCLUDE_DIRS}
   ${YAMLCPP_INCLUDE_DIRS}
   ${RTAI_INCLUDE_DIR}
 ${M3RT_INCLUDE_DIRS}

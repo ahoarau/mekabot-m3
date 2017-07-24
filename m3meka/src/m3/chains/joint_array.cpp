@@ -1,4 +1,4 @@
-/* 
+/*
 M3 -- Meka Robotics Robot Components
 Copyright (c) 2010 Meka Robotics
 Author: edsinger@mekabot.com (Aaron Edsinger)
@@ -24,7 +24,7 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace m3
 {
-	
+
 using namespace m3rt;
 using namespace std;
 using namespace KDL;
@@ -33,7 +33,7 @@ using namespace KDL;
 ///////////////////////////////////////////////////////
 //Success so long as least one dependent comp. available
 bool M3JointArray::LinkDependentComponents()
-{	
+{
 	int nl=0;
 	if (joint_names.size()>0)
 		joints.assign(joint_names.size(),(M3Joint*)NULL);
@@ -41,29 +41,29 @@ bool M3JointArray::LinkDependentComponents()
 	{
 		if(joint_names[i].size())
 		{
-			joints[i]=dynamic_cast<M3Joint*>(factory->GetComponent(joint_names[i]));			
+			joints[i]=dynamic_cast<M3Joint*>(factory->GetComponent(joint_names[i]));
 			if (joints[i]!=NULL)
 				nl++;
 		}
 		else
 			joints[i]=NULL;
-	}	
-		
+	}
+
 	if (nl<=0)
 	{
-		M3_ERR("M3JointArray %s found %d joints \n",GetName().c_str(),nl);	
+		M3_ERR("M3JointArray %s found %d joints \n",GetName().c_str(),nl);
 		return false;
 	}
 	if (nl!=ndof)
 	{
 		M3_ERR("M3JointArray %s found %d joints. Expected %d. Continuing with missing joints. \n",
-		       GetName().c_str(),nl,ndof);	
+		       GetName().c_str(),nl,ndof);
 	}
 	return true;
 }
 
 void M3JointArray::Startup()
-{		
+{
 	joints.resize(ndof);
 	traj_active.assign(ndof,false);
 	joint_names.resize(ndof);
@@ -90,12 +90,12 @@ void M3JointArray::Startup()
 		command.add_q_slew_rate(0);
 		command.add_ctrl_mode(JOINT_ARRAY_MODE_OFF);
 		command.add_smoothing_mode(SMOOTHING_MODE_OFF);
-		
+
 		status.add_motor_temp(0);
 		status.add_amp_temp(0);
 		status.add_current(0);
 		status.add_torque(0);
-		status.add_torquedot(0);		
+		status.add_torquedot(0);
 		status.add_theta(0);
 		status.add_thetadot(0);
 		status.add_thetadotdot(0);
@@ -103,7 +103,7 @@ void M3JointArray::Startup()
 		status.add_flags(0);
 	}
 	status.set_completed_spline_idx(-1);
-	
+
 	SetStateSafeOp();
 	tmp_cnt = 0;
 }
@@ -135,7 +135,7 @@ void M3JointArray::StepJointTrajectory()
 	for (int i=0;i<command.vias_size();i++)
 		traj.AddVia(command.vias(i));
 	command.clear_vias();
-	
+
 	for (int i=0;i<ndof;i++)
 	{
 		theta(i)=status.theta(i);
@@ -147,10 +147,10 @@ void M3JointArray::StepJointTrajectory()
 
 
 void M3JointArray::StepCommand()
-{	
+{
 	if (IsStateSafeOp() || IsStateError())
 		return;
-	
+
 	StepJointTrajectory();
 
 	//Individual controllers
@@ -158,7 +158,7 @@ void M3JointArray::StepCommand()
 	{
 
 		if (joints[i]!=NULL)
-		{		
+		{
 			joints[i]->SetDesiredThetaDeg(command.q_desired(i));
 			joints[i]->SetDesiredThetaDotDeg(command.qdot_desired(i));
 			joints[i]->SetDesiredPwm(command.pwm_desired(i));
@@ -166,7 +166,7 @@ void M3JointArray::StepCommand()
 			joints[i]->SetDesiredStiffness(command.q_stiffness(i));
 			joints[i]->SetSlewRate(command.q_slew_rate(i));
 			joints[i]->SetDesiredSmoothingMode(command.smoothing_mode(i));
-			
+
 			/*if (i == 2 && tmp_cnt++ == 200)
 			{
 				M3_DEBUG("mo: %d\n", (int)command.ctrl_mode(i));
@@ -179,7 +179,7 @@ void M3JointArray::StepCommand()
 				tmp_cnt = 0;
 			}*/
 			switch(command.ctrl_mode(i))
-			{										
+			{
 				case JOINT_ARRAY_MODE_OFF:
 					joints[i]->SetDesiredControlMode(JOINT_MODE_OFF);
 					break;
@@ -195,7 +195,7 @@ void M3JointArray::StepCommand()
 				case JOINT_ARRAY_MODE_TORQUE_GC:
 					joints[i]->SetDesiredControlMode(JOINT_MODE_TORQUE_GC);
 					break;
-				case JOINT_ARRAY_MODE_THETA_GC:					
+				case JOINT_ARRAY_MODE_THETA_GC:
 					joints[i]->SetDesiredControlMode(JOINT_MODE_THETA_GC);
 					break;
 				case JOINT_ARRAY_MODE_THETA_MJ:
@@ -206,23 +206,23 @@ void M3JointArray::StepCommand()
 					break;
 				case JOINT_ARRAY_MODE_POSE:
 					joints[i]->SetDesiredControlMode(JOINT_MODE_POSE);
-					break;				
+					break;
 				case JOINT_ARRAY_MODE_TORQUE_GRAV_MODEL:
 					joints[i]->SetDesiredControlMode(JOINT_MODE_TORQUE_GRAV_MODEL);
 					break;
 				// Antoine Hoarau's velocity control
 				case JOINT_ARRAY_MODE_THETADOT:
 					joints[i]->SetDesiredControlMode(JOINT_MODE_THETADOT);
-					break;	
+					break;
 				case JOINT_ARRAY_MODE_THETADOT_GC:
 					joints[i]->SetDesiredControlMode(JOINT_MODE_THETADOT_GC);
-					break;	
+					break;
 				case JOINT_ARRAY_MODE_SPLINED_TRAJ_GC:
-					joints[i]->SetDesiredControlMode(JOINT_MODE_THETA_GC);	
+					joints[i]->SetDesiredControlMode(JOINT_MODE_THETA_GC);
 					joints[i]->SetDesiredThetaDeg(traj_des(i));
 					break;
 				case JOINT_ARRAY_MODE_SPLINED_TRAJ:
-					joints[i]->SetDesiredControlMode(JOINT_MODE_THETA);	
+					joints[i]->SetDesiredControlMode(JOINT_MODE_THETA);
 					joints[i]->SetDesiredThetaDeg(traj_des(i));
 					break;
 				default:
@@ -234,7 +234,7 @@ void M3JointArray::StepCommand()
 }
 
 void M3JointArray::StepStatus()
-{	
+{
 	if (IsStateError())
 		return;
 	for (int i=0;i<ndof;i++)
@@ -269,19 +269,13 @@ bool M3JointArray::ReadConfig(const char * filename)
         //m3rt::GetYamlDoc(filename,doc);
 	doc["ndof"] >> ndof;
 	const YAML::Node& joint_components = doc["joint_components"];
-#ifdef YAMLCPP_03
-	for(YAML::Iterator it=joint_components.begin();it!=joint_components.end();++it) 
-	{
-   		string key, value;
-    		it.first() >> key;
-    		it.second() >> value;
-#else
-	for(YAML::const_iterator it=joint_components.begin();it!=joint_components.end();++it) 
+
+	for(YAML::const_iterator it=joint_components.begin();it!=joint_components.end();++it)
 	{
    		string key, value;
 		key = 	it->first.as<std::string>();
 		value = it->second	.as<std::string>();
-#endif
+
 		int id=atoi(key.substr(1).c_str()); //"J0" gives 0, etc
 		if (joint_names.size() <= (id+1))
 		{
@@ -289,7 +283,7 @@ bool M3JointArray::ReadConfig(const char * filename)
 		}
 		joint_names[id]=value;
 	}
-	
+
 	return true;
 }
 

@@ -1,4 +1,4 @@
-/* 
+/*
 M3 -- Meka Robotics Robot Components
 Copyright (c) 2010 Meka Robotics
 Author: edsinger@mekabot.com (Aaron Edsinger)
@@ -22,15 +22,15 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace m3
 {
-	
+
 using namespace m3rt;
 using namespace std;
 using namespace KDL;
 
 bool M3Dynamatics::LinkDependentComponents()
-{	
+{
 	m3chain = dynamic_cast<M3JointChain*>(factory->GetComponent(chain_name));
-	
+
 	if (m3chain!=NULL)
 		return true;
 	else
@@ -41,17 +41,17 @@ bool M3Dynamatics::LinkDependentComponents()
 }
 
 void M3Dynamatics::Startup()
-{		
+{
 	/*if (ndof != m3chain->GetNumDof())
 	{
-		M3_WARN("M3Dynamatics: ndof does not match chain: %s\n", chain_name.c_str());		
+		M3_WARN("M3Dynamatics: ndof does not match chain: %s\n", chain_name.c_str());
 	}*/
-	
+
 	q.resize(ndof+3);	// contains both position q.q and vel q.qdot
 	qdot_id.resize(ndof+3);
-	qdotdot_id.resize(ndof+3);		
+	qdotdot_id.resize(ndof+3);
 	G.resize(ndof+3);
-	J=Jacobian(ndof+3);	
+	J=Jacobian(ndof+3);
 	chain_mass=0;
 	for (int i=0; i<ndof; i++)
 	{
@@ -80,24 +80,24 @@ void M3Dynamatics::Startup()
 	{
 		status.add_j(0);
 	}
-	
+
 	for (int i=0; i<=ndof; i++)
-	{		
+	{
 		// KDL adds each joint to the BASE of each frame, not the end as Roboop did
 		Frame frame = Frame().DH_Craig1989(a[i], DEG2RAD(alpha[i]), d[i], DEG2RAD(joint_offset[i]));
-		
+
 		// The first segment is static defining the offset from the origin,
 		// but we are adding a joint in each direction that will always be zero to calc
 		// wrenches at the base
-		
-		if (i==0) 
+
+		if (i==0)
 		{
 			kdlchain.addSegment(Segment(Joint(Joint::RotX)));
 			kdlchain.addSegment(Segment(Joint(Joint::RotY)));
 			kdlchain.addSegment(Segment(Joint(Joint::RotZ), frame));
-		} else {			
+		} else {
 			// because frames define the joint placement for the NEXT segment, we need to use Inertial values for previous segment
-			Vector vcog = Vector(cx[i-1] ,cy[i-1], cz[i-1]);					
+			Vector vcog = Vector(cx[i-1] ,cy[i-1], cz[i-1]);
 			RotationalInertia ri = RotationalInertia(Ixx[i-1], Iyy[i-1], Izz[i-1], Ixy[i-1], Ixz[i-1], Iyz[i-1]);
 			if(i!=ndof)
 			{
@@ -113,17 +113,17 @@ void M3Dynamatics::Startup()
 				if (payload_mass+z_m>0.001) // we add the payload mass
 				{
 
-					ecom = (payload_mass*com+z_com*z_m)/(payload_mass+z_m);		
+					ecom = (payload_mass*com+z_com*z_m)/(payload_mass+z_m);
 					ToTipSeg.setInertia(frame.Inverse()*RigidBodyInertia(payload_mass+z_m, ecom, rot_inertia + z_I));
 				}
 				else
 				{
-					ecom = (com+z_com);		
+					ecom = (com+z_com);
 					ToTipSeg.setInertia(frame.Inverse()*RigidBodyInertia(payload_mass+z_m, ecom, rot_inertia + z_I));
 				}
 				kdlchain.addSegment(ToTipSeg);
 			}
-				
+
 		}
 	}
 	// HACK : Temporary fix to use the reguler ros-kdl
@@ -134,13 +134,13 @@ void M3Dynamatics::Startup()
 	z_com = z_I_rigid.getCOG();
 	z_I = z_I_rigid.getRotationalInertia();
 	z_m = z_I_rigid.getMass();
-	
+
 	fksolver_vel = new ChainFkSolverVel_recursive(kdlchain);
 	grav = Vector(0,0,1.)*GRAV;
 	idsolver = new ChainIdSolver_RNE(kdlchain, grav);
 	f_ext = std::vector<Wrench>(kdlchain.getNrOfSegments());
-	jjsolver = new ChainJntToJacSolver(kdlchain); 
-	
+	jjsolver = new ChainJntToJacSolver(kdlchain);
+
 	SetPayload();
 	SetStateSafeOp();
 }
@@ -154,16 +154,16 @@ void M3Dynamatics::Shutdown()
 
 void M3Dynamatics::StepCommand()
 {
-	
+
 }
 
 void M3Dynamatics::StepStatus()
-{	
+{
 	if (IsStateError())
 		return;
 	tmp_cnt++;
-	
-	// ToDo: find out why copy operator= causes lockups in hard RT	
+
+	// ToDo: find out why copy operator= causes lockups in hard RT
 	for (int i=0; i<3; i++)
 	{
 		q.q(i) = 0.;
@@ -186,14 +186,14 @@ void M3Dynamatics::StepStatus()
 		else
 			qdot_id(i+3) = 0.;
 
-	}	
+	}
 	SetPayload();
 	//idsolver->SetGrav(grav);
-	
-	f_ext[kdlchain.getNrOfSegments()-1] = end_wrench;	
+
+	f_ext[kdlchain.getNrOfSegments()-1] = end_wrench;
 
 	int result = idsolver->CartToJnt(q.q, qdot_id, qdotdot_id, f_ext, G);
-	
+
 	for (int i=0; i<G.rows(); i++)
 		G(i) = -1000*G(i);  // Nm to mNm
 	if (result==-1)
@@ -210,7 +210,7 @@ void M3Dynamatics::StepStatus()
 	for (int i=0; i<ndof; i++){
 		status.set_g(i, G(i+3));
 	}
-	
+
 	for (int i=0; i<3; i++)
 		status.set_end_pos(i, end_pos(i));
 
@@ -238,7 +238,7 @@ void M3Dynamatics::StepStatus()
 
 	for (int i=0; i<ndof; i++)
 		m3chain->SetG(i, GetG(i));
-	m3chain->SetGCoupled();	
+	m3chain->SetGCoupled();
 }
 
 // This should be realtime safe... Explanation:
@@ -247,9 +247,9 @@ void M3Dynamatics::StepStatus()
 // not exceed the size of the previous allocation and not reallocate any memory.
 void M3Dynamatics::SetPayload()
 {
-    
+
 	if (param.payload_inertia_size()==6)
-	{		
+	{
 		//param.payload_inertia defined as Ixx, Ixy, Ixz, Iyy, Iyz, Izz
 		// KDL defines RotationalInertia(Ixx,Iyy,Izz,Ixy,Ixz,Iyz);
 		payload_I = RotationalInertia(param.payload_inertia(0),
@@ -268,7 +268,7 @@ void M3Dynamatics::SetPayload()
 	if (param.payload_com_size()==3)
 	{
 		for (int i=0; i<3; i++)
-			payload_com(i)=param.payload_com(i);		
+			payload_com(i)=param.payload_com(i);
 	}
 	else
 	{
@@ -287,25 +287,25 @@ void M3Dynamatics::SetPayload()
 	//ToTipSeg = kdlchain.getMutableSegment(kdlchain.getNrOfSegments()-1); // A.H : Get the last segment
 /*
  	toTip = kdlchain.getSegment(kdlchain.getNrOfSegments()-1).getFrameToTip();
-	
+
 	// REPLACED Segment * end_eff = kdlchain.getMutableSegment(kdlchain.getNrOfSegments()-1);
-	
+
 	mReal m = GetPayloadMass();
 	com = toTip*GetPayloadCom(); // tranforming from wrist to last joint's frame where we defined it's COM...
 	rb_inertia = (toTip*RigidBodyInertia(0.,Vector(0.,0.,0.),GetPayloadInertia()));
-	rot_inertia = rb_inertia.getRotationalInertia();			
+	rot_inertia = rb_inertia.getRotationalInertia();
 	if (m+z_m>0.001)
 	{
 
-		ecom = (m*com+z_com*z_m)/(m+z_m);		
+		ecom = (m*com+z_com*z_m)/(m+z_m);
 		ToTipSeg->setInertia(toTip.Inverse()*RigidBodyInertia(m+z_m, ecom, rot_inertia + z_I));
 	}
 	else
 	{
-		ecom = (com+z_com);		
+		ecom = (com+z_com);
 		ToTipSeg->setInertia(toTip.Inverse()*RigidBodyInertia(m+z_m, ecom, rot_inertia + z_I));
 	}*/
-	// Should not be needed anymore as we modify the segment directly 
+	// Should not be needed anymore as we modify the segment directly
 	// HACK: temporary remove for regular kdl
 	//idsolver->chain = kdlchain;
 }
@@ -315,20 +315,20 @@ bool M3Dynamatics::ReadConfig(const char * filename)
 {
 	if (!M3Component::ReadConfig(filename))
 		return false;
-	
+
 	//YAML::Node doc;
 	//GetYamlDoc(filename, doc);
-	
+
 	mReal rtemp;
 	int itemp;
-	
-	doc["chain_component"] >> chain_name;	
-	doc["ndof"] >> ndof;	
-	
+
+	doc["chain_component"] >> chain_name;
+	doc["ndof"] >> ndof;
+
 	const YAML::Node& ymlparam = doc["param"];
 
 	ymlparam["payload_mass"] >> rtemp;
-	param.set_payload_mass(rtemp);	
+	param.set_payload_mass(rtemp);
 	for(int i=0; i<ymlparam["payload_com"].size(); i++)
 	{
 		ymlparam["payload_com"][i] >> rtemp;
@@ -354,24 +354,24 @@ bool M3Dynamatics::ReadConfig(const char * filename)
 	{
 	    ymlparam["use_velocities"] >> btemp;
 	    param.set_use_velocities(btemp);
-	} catch(...) 
+	} catch(...)
 	{
 		param.set_use_velocities(0);
-	} 
+	}
 	try
 	{
 	  ymlparam["use_accelerations"] >> btemp;
 	  param.set_use_accelerations(btemp);
-	} catch(...) 
+	} catch(...)
 	{
 		param.set_use_accelerations(0);
-	} 	
+	}
 
 
 	const YAML::Node& links = doc["links"];
 
 	for(int i=0; i<links.size(); i++)
-	{		
+	{
 		links[i]["d"] >> rtemp;
 		d.push_back(rtemp);
 		links[i]["a"] >> rtemp;
@@ -390,51 +390,14 @@ bool M3Dynamatics::ReadConfig(const char * filename)
 			cy.push_back(rtemp);
 			links[i]["cz"] >> rtemp;
 			cz.push_back(rtemp);
-#ifdef YAMLCPP_03
-			if(const YAML::Node *pName = links[i].FindValue("Ixx")) {
-    				*pName >> rtemp;
-			} else {
-    				rtemp = 0.0;
-			}
-			Ixx.push_back(rtemp);
-			if(const YAML::Node *pName = links[i].FindValue("Ixy")) {
-    				*pName >> rtemp;
-			} else {
-    				rtemp = 0.0;
-			}
-			Ixy.push_back(rtemp);
-			if(const YAML::Node *pName = links[i].FindValue("Ixz")) {
-    				*pName >> rtemp;
-			} else {
-    				rtemp = 0.0;
-			}
-			Ixz.push_back(rtemp);
-			if(const YAML::Node *pName = links[i].FindValue("Iyy")) {
-    				*pName >> rtemp;
-			} else {
-    				rtemp = 0.0;
-			}
-			Iyy.push_back(rtemp);
-			if(const YAML::Node *pName = links[i].FindValue("Iyz")) {
-    				*pName >> rtemp;
-			} else {
-    				rtemp = 0.0;
-			}
-			Iyz.push_back(rtemp);
-			if(const YAML::Node *pName = links[i].FindValue("Izz")) {
-    				*pName >> rtemp;
-			} else {
-    				rtemp = 0.0;
-			}
-			Izz.push_back(rtemp);
-#else
+
 		 Ixx.push_back(links[i]["Ixx"].as<mReal>(0.0));
 		 Ixy.push_back(links[i]["Ixy"].as<mReal>(0.0));
 		 Ixz.push_back(links[i]["Ixz"].as<mReal>(0.0));
 		 Iyy.push_back(links[i]["Iyy"].as<mReal>(0.0));
 		 Iyz.push_back(links[i]["Iyz"].as<mReal>(0.0));
 		 Izz.push_back(links[i]["Izz"].as<mReal>(0.0));
-#endif
+
 		}
 	}
 

@@ -226,19 +226,6 @@ vector<string> YamlReadVectorString(string s)
 }
 
 
-#ifdef YAMLCPP_03
-vector<mReal> YamlReadVectorM(const YAML::Node &seq)
-{
-    vector<mReal> f;
-    mReal val;
-    for(size_t i = 0; i < seq.size(); i++) {
-        seq[i] >> val;
-        f.push_back(val);
-    }
-
-    return f;
-}
-#endif
 // Converts a hexadecimal string to integer
 // Returns 0 if not valid
 unsigned int xtoi(const char *xs)
@@ -323,29 +310,7 @@ bool GetFileConfigPath(const char *filename,vector<string>& vpath)
     parser.PrintTokens(cout);
     return docs.Clone();
 }*/
-#ifdef YAMLCPP_03
-bool GetYamlStream(const char *filename, YAML::Emitter &out)
-{
-    string path;
-    YAML::Node node;
-    YAML::Parser parser;
-    vector<string> vpath;
-    if(!GetFileConfigPath(filename,vpath)) return false;
-    for(vector<string>::iterator it = vpath.begin(); it != vpath.end(); ++it) {
-        ifstream fin((*it).c_str());
-        if(fin.fail()) { continue;}
-        parser.Load(fin);
-        while(parser.GetNextDocument(node)) {
-            out << node;
-        }
-        fin.close();
-        fin.clear();
-    }
-    assert(out.good());
-    //parser.PrintTokens(cout);
-    return true;
-}
-#else
+
 bool GetYamlStream(const char *filename, YAML::Emitter &out)
 {
     vector<string> vpath;
@@ -364,7 +329,6 @@ bool GetYamlStream(const char *filename, YAML::Emitter &out)
     assert(out.good());
     return true;
 }
-#endif
 
 
 bool GetYamlDoc(const char* filename, YAML::Node& doc)
@@ -372,7 +336,7 @@ bool GetYamlDoc(const char* filename, YAML::Node& doc)
     std::string ret = GetYamlDoc(filename,doc,NULL);
     return !ret.empty();
 }
-#ifndef YAMLCPP_03
+
 bool GetAllYamlDocs(const char* filename, std::vector<YAML::Node>& docs )
 {
     if(!filename) return false;
@@ -407,7 +371,7 @@ bool GetAllYamlDocs(std::vector<std::string> vpath, std::vector<YAML::Node>& doc
     }
     return !docs.empty();
 }
-#endif
+
 
 std::string GetYamlDoc(const char* filename, YAML::Node& doc, void * )
 {
@@ -435,7 +399,7 @@ std::string GetYamlDoc(const char* filename, YAML::Node& doc, void * )
         //If the file is loaded, then check for an optional find_str provided to checkif this is the right file to load, otherwise go to previous path
         path = it->first;
         root_path = it->second;
-#ifndef YAMLCPP_03
+
         try{
             if(m3rt::file_exists(path))
                 doc = YAML::LoadFile(path);
@@ -444,20 +408,7 @@ std::string GetYamlDoc(const char* filename, YAML::Node& doc, void * )
         }catch(YAML::Exception){
             continue;
         }
-#else
-        YAML::Parser parser;
-        ifstream fin(path.c_str());
-        if(fin.fail()) {
-            if(verbose)
-                cout<<"Could not read "<<path<<" , trying the next one."<<endl;
-            continue;
 
-        }
-        parser.Load(fin);
-        parser.GetNextDocument(doc);
-        fin.close();
-        fin.clear();
-#endif
         cout << "- Config file: " << path<<endl;
         break;
 
