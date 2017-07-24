@@ -334,6 +334,10 @@ namespace m3rt
                             }
 
                         }
+                        else
+                        {
+                            M3_ERR("[M3RtSystem] Could not create component %s of type %s\n.",name.c_str(),type.c_str());
+                        }
                     }
                 }
                 return true;
@@ -365,7 +369,7 @@ namespace m3rt
                     std::string type=it_dir->begin()->second.as<std::string>();
                     if(IsComponentInList(name,comp_list))
                     {
-                        M3_WARN("[M3RtSystem] Component %s (of type %s) already loaded, please make sure your component's name is unique.\n",name.c_str(),type.c_str());
+                        M3_WARN("[M3RtSystem] Component %s (of type %s) already loaded, please make sure your component's name is unique.\n",name.c_str(),GetComponentType(GetComponentIdx(name)).c_str());
                         continue;
                     }
                     T m = reinterpret_cast<T>(factory->CreateComponent(type));
@@ -387,6 +391,10 @@ namespace m3rt
                             factory->ReleaseComponent(m);
                         }
 
+                    }
+                    else
+                    {
+                        M3_ERR("[M3RtSystem] Could not create component %s of type %s\n.",name.c_str(),type.c_str());
                     }
                 }
                 //std::cout <<"------------------------------------------"<<std::endl;

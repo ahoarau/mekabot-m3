@@ -78,7 +78,7 @@ namespace m3rt
     {
         if(idx <= GetNumComponents())
         return m3_types[idx];
-        else return string("");
+        else return string("Error");
     }
 
     int M3ComponentFactory::GetNumComponents()
@@ -94,9 +94,14 @@ namespace m3rt
     string  M3ComponentFactory::GetComponentName(int idx)
     {
         if(idx <= GetNumComponents())
-        return GetComponent(idx)->GetName();
+        {
+            return GetComponent(idx)->GetName();
+        }
         else
-        return string("");
+        {
+            M3_ERR("[M3ComponentFactory::GetComponentName] idx asked is %d, but I only have %d components\n.",idx,GetNumComponents());
+            return string("Error");
+        }
     }
 
     bool M3ComponentFactory::AddComponentLibrary(string lib)

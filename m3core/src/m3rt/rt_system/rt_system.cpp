@@ -356,9 +356,15 @@ bool M3RtSystem::StartupComponents()
 {
     M3_INFO("[M3RtSystem] Reading components config files ...\n");
     if(!ReadConfig(M3_CONFIG_FILENAME,"ec_components",this->m3ec_list,this->idx_map_ec))
+    {
+        M3_ERR("[M3RtSystem] Unable read config for EtherCAT components, exiting.\n");
         return false;
+    }
     if(!ReadConfig(M3_CONFIG_FILENAME,"rt_components",this->m3rt_list,this->idx_map_rt))
+    {
+        M3_ERR("[M3RtSystem] Unable read config for EtherCAT components, exiting.\n");
         return false;
+    }
     M3_INFO("[M3RtSystem] Done reading components config files.\n");
 
 #ifdef __RTAI__
@@ -434,6 +440,7 @@ bool M3RtSystem::StartupComponents()
     int rm_cnt=0;
     for(vector<M3ComponentEc *>::iterator it_ec=m3ec_list.begin();it_ec!=m3ec_list.end();/*++it_ec*/){
         if(!shm_ec || (*it_ec)->SetSlaveEcShm(shm_ec->slave, shm_ec->slaves_responding) == false){
+            M3_ERR("[M3RtSystem] Releasing component %s.\n",(* it_ec)->GetName().c_str());
             factory->ReleaseComponent((*it_ec));
             m3ec_list.erase(it_ec);
             rm_cnt++;
@@ -449,9 +456,9 @@ bool M3RtSystem::StartupComponents()
         idx_map_rt[i]-=rm_cnt;
     //Link dependent components. Drop failures.
     //Keep dropping until no failures
-    vector<M3Component *> bad_link;
+    vector<string> bad_link;
     bool failure = true;
-    M3_INFO("[M3RtSystem] Linking components ...\n");
+    M3_INFO("[M3RtSystem] Linking %d components ...\n",GetNumComponents());
     while(GetNumComponents() > 0 && failure) {
         bad_link.clear();
         failure = false;
@@ -459,34 +466,41 @@ bool M3RtSystem::StartupComponents()
             if(!GetComponent(i)->LinkDependentComponents()) {
                 M3_WARN("[M3RtSystem] Failure LinkDependentComponents for %s\n", GetComponent(i)->GetName().c_str());
                 failure = true;
-                bad_link.push_back(GetComponent(i));
+                bad_link.push_back(GetComponent(i)->GetName());
             }
         }
-        if(failure) {
-            vector<M3Component *>::iterator ci;
-            vector<M3ComponentEc *>::iterator eci;
-            for(int i = 0; i < bad_link.size(); i++) {
-                for(eci = m3ec_list.begin(); eci != m3ec_list.end(); ++eci)
-                    if((*eci) == bad_link[i]) {
-                        //(*eci)->Shutdown();
-                        m3ec_list.erase(eci);
-                        break;
-                    }
-                for(ci = m3rt_list.begin(); ci != m3rt_list.end(); ++ci)
-                    if((*ci) == bad_link[i]) {
-                        //(*ci)->Shutdown();
-                        m3rt_list.erase(ci);
-                        break;
-                    }
-                factory->ReleaseComponent(bad_link[i]);
+        for (size_t ib = 0; ib < bad_link.size(); ib++) {
+            M3_WARN("[M3RtSystem] Component %s needs to be removed.\n",bad_link[ib].c_str());
+            for (size_t i = 0; i < this->m3ec_list.size(); i++) {
+                //std::cout << "EC Name ["<< this->m3ec_list[i]->GetName() << "] compared to ["<< bad_link[ib] << "] --> " << (this->m3ec_list[i]->GetName() == bad_link[ib]) << '\n';
+                if(this->m3ec_list[i]->GetName() == bad_link[ib])
+                {
+                    this->m3ec_list.erase(this->m3ec_list.begin() + i);
+                }
             }
+            for (size_t i = 0; i < this->m3rt_list.size(); i++) {
+                //std::cout << "RT Name ["<< this->m3rt_list[i]->GetName() << "] compared to ["<< bad_link[ib] << "] --> " << (this->m3rt_list[i]->GetName() == bad_link[ib]) << '\n';
+                if(this->m3rt_list[i]->GetName() == bad_link[ib])
+                {
+                    this->m3rt_list.erase(this->m3rt_list.begin() + i);
+                }
+            }
+            int idx = GetComponentIdx(bad_link[ib]);
+            M3_WARN("[M3RtSystem] Releasing component %s of type %s\n",bad_link[ib].c_str(),GetComponentType(idx).c_str());
+            factory->ReleaseComponent(GetComponent(bad_link[ib]));
         }
+    }
+
+    if(bad_link.size())
+    {
+        M3_WARN("[M3RtSystem] Removed %d components that could not link\n.",bad_link.size());
     }
 
     if(GetNumComponents() == 0) {
         M3_WARN("[M3RtSystem] No M3 Components could be loaded....\n", 0);
         return false;
     }
+
     M3_INFO("[M3RtSystem] Done linking %d components.\n",GetNumComponents());
     M3_INFO("[M3RtSystem] Starting up %d components ...\n",GetNumComponents());
     for(int i = 0; i < GetNumComponents(); i++) {
@@ -494,7 +508,6 @@ bool M3RtSystem::StartupComponents()
     }
     M3_INFO("[M3RtSystem] Done starting up components.\n");
     CheckComponentStates();
-    PrettyPrintComponentNames();
     //Setup Monitor
     M3_INFO("[M3RtSystem] Setup monitor for RT components.\n");
     M3MonitorStatus *s = factory->GetMonitorStatus();
@@ -506,6 +519,7 @@ bool M3RtSystem::StartupComponents()
     for(int i = 0; i < NUM_EC_DOMAIN; i++) {
         s->add_ec_domains();
     }
+    PrettyPrintComponentNames();
     M3_INFO("[M3RtSystem] StartupComponents completed.\n");
     return true;
 }
@@ -661,7 +675,7 @@ void M3RtSystem::PrettyPrintComponentNames()
 {
     BannerPrint(60, "M3 SYSTEM COMPONENTS");
     for(int i = 0; i < GetNumComponents(); i++)
-        M3_PRINTF("%s \n-- Config: %s\n", GetComponentName(i).c_str(),GetComponent(i)->GetConfigPath().c_str());
+        M3_PRINTF("%d) %s of type %s\n-- Config: %s\n",i,GetComponentName(i).c_str(),GetComponentType(i).c_str(),GetComponent(i)->GetConfigPath().c_str());
     BannerPrint(60, "");
 }
 
@@ -790,7 +804,7 @@ bool M3RtSystem::Step(bool safeop_only,bool dry_run)
                 start_c = getNanoSec();
                 m3ec_list[i]->StepStatus();
                 end_c = getNanoSec();
-                M3MonitorComponent *c = s->mutable_components(idx_map_ec[i]);
+                M3MonitorComponent *c = s->mutable_components(GetComponentIdx(m3ec_list[i]->GetName()));
                 c->set_cycle_time_status_us((mReal)(end_c - start_c) / 1000);
             }
         }
@@ -803,7 +817,7 @@ bool M3RtSystem::Step(bool safeop_only,bool dry_run)
                 start_c = getNanoSec();
                 m3rt_list[i]->StepStatus();
                 end_c = getNanoSec();
-                M3MonitorComponent *c = s->mutable_components(idx_map_rt[i]);
+                M3MonitorComponent *c = s->mutable_components(GetComponentIdx(m3rt_list[i]->GetName()));
                 c->set_cycle_time_status_us((mReal)(end_c - start_c) / 1000);
             }
         }
@@ -828,7 +842,7 @@ bool M3RtSystem::Step(bool safeop_only,bool dry_run)
 
                 end_c = getNanoSec();
 
-                M3MonitorComponent *c = s->mutable_components(idx_map_rt[i]);
+                M3MonitorComponent *c = s->mutable_components(GetComponentIdx(m3rt_list[i]->GetName()));
                 c->set_cycle_time_command_us((mReal)(end_c - start_c) / 1000);
             }
         }
@@ -841,7 +855,7 @@ bool M3RtSystem::Step(bool safeop_only,bool dry_run)
                 start_c = getNanoSec();
                 m3ec_list[i]->StepCommand();
                 end_c = getNanoSec();
-                M3MonitorComponent *c = s->mutable_components(idx_map_ec[i]);
+                M3MonitorComponent *c = s->mutable_components(GetComponentIdx(m3ec_list[i]->GetName()));
                 c->set_cycle_time_command_us((mReal)(end_c - start_c) / 1000);
             }
 

@@ -470,35 +470,29 @@ class M3RtProxy:
             raise m3t.M3Exception('Component type mismatch '+type+' , '+component.type)
 
     def __start_rt_system(self):
-        try:
-            try:
-                self.rtsys_id=self.proxy.AttachRtSystem()
-                if self.rtsys_id==-1:
-                    raise m3t.M3Exception('M3RtSystem still online')
-                if self.rtsys_id==0: #failed to start
-                    print "Attaching a new rt system failed"
-                    self.stop()
-                    raise m3t.M3Exception('Unable to start M3RtSystem. Try restarting server')
-            except xmlrpclib.ProtocolError,v:
-                raise m3t.M3Exception("xmlrpclib.ProtocolError "+str(v))
-            except Exception,e:
-                raise m3t.M3Exception("__start_rt_system "+str(e))
-            #Query available components
-            self.available_components=[]
-            n=self.proxy.GetNumComponents()
-            for i in xrange(n):
-                name=self.proxy.GetComponentName(i)
-                self.available_components.append(name)
-            #Query component types
-            self.available_component_types=[]
-            for i in xrange(n):
-                ttype=self.proxy.GetComponentType(i)
-                self.available_component_types.append(ttype)
-        except socket.error, msg:
-            raise m3t.M3Exception('Check that server is started. Socket Error: '+str(msg))
-        except Exception,e:
-            raise m3t.M3Exception('GetNumComponents failed '+str(e))
 
+        self.rtsys_id=self.proxy.AttachRtSystem()
+        if self.rtsys_id==-1:
+            raise m3t.M3Exception('M3RtSystem still online')
+        if self.rtsys_id==0: #failed to start
+            print "Attaching a new rt system failed"
+            self.stop()
+            raise m3t.M3Exception('Unable to start M3RtSystem. Try restarting server')
+
+        #Query available components
+        self.available_components=[]
+        n=self.proxy.GetNumComponents()
+        print "Getting all  ",n,"components"
+        for i in xrange(n):
+            print "Getting component ",i,
+            name=self.proxy.GetComponentName(i)
+            print " : ",name,self.proxy.GetComponentType(i)
+            self.available_components.append(name)
+        #Query component types
+        self.available_component_types=[]
+        for i in xrange(n):
+            ttype=self.proxy.GetComponentType(i)
+            self.available_component_types.append(ttype)
     def __stop_data_service(self):
         try:
             if self.proxy is not None:

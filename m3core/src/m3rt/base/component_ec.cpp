@@ -56,7 +56,7 @@ bool M3ComponentEc::SetSlaveEcShm(M3EcSlaveShm * slaves, int slaves_responding)
 			}
 		}
 	}
-	M3_INFO("No active EtherCAT Slave found for component %s (Serial %d BusID %d ProductCode %d)\n",
+	M3_ERR("No active EtherCAT Slave found for component %s (Serial %d BusID %d ProductCode %d)\n",
 			GetName().c_str(),status->serial_number(),status->network_id(),status->product_code());
 	return false;
 }

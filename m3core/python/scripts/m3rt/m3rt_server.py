@@ -39,6 +39,16 @@ stop_signal=Event()
 def stop_program(signal, frame):
     stop_signal.set()
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    ERROR = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 class MyTCPServer(SocketServer.TCPServer):
     def server_bind(self):
         self.socket.setsockopt(socket.SOL_SOCKET,socket.SO_REUSEADDR,1)
@@ -171,7 +181,7 @@ for idx in range(1,len(sys.argv)):
 try:
     svc=m3.m3rt_system.M3RtService()
     if not svc.Startup(): # Let client start rt_system
-        print("M3 ERROR: M3RtService failed to start, exiting.")
+        print bcolors.ERROR + "M3 ERROR: M3RtService failed to start, exiting." + bcolors.ENDC
         exit(-1)
     #for i in xrange(40):
     #    time.sleep(0.05)
@@ -181,7 +191,7 @@ try:
     try:
         m3server = M3Server()
     except Exception,e:
-        print "M3 ERROR: m3server = M3Server() Error creating the server: "+str(e)
+        print bcolors.ERROR + "M3 ERROR: m3server = M3Server() Error creating the server: "+str(e) + bcolors.ENDC
         raise M3Exception("M3 RPC Server failed to start")
 
     # Start the server
@@ -193,7 +203,7 @@ try:
         #for i in xrange(400):
          #   time.sleep(0.01)
     except Exception,e:
-        print "M3 ERROR: m3client_thread = client_thread Error creating the client thread: "+str(e)
+        print bcolors.ERROR + "M3 ERROR: m3client_thread = client_thread Error creating the client thread: "+str(e) + bcolors.ENDC
         raise M3Exception("Client Thread failed to start")
 
     m3client_thread.start()
@@ -206,7 +216,7 @@ try:
             print 'M3 INFO: Shutdown signal caught.'
     print "M3 INFO: Shutdown initiated."
 except Exception,e:
-    print 'M3 ERROR: '+str(e)
+    print bcolors.ERROR + 'M3 ERROR: '+str(e) + bcolors.ENDC
 
 if svc:
     print "M3 INFO: Shutting down M3Service."
@@ -226,7 +236,7 @@ if m3server and m3server.is_alive():
     while m3server.is_alive():
         print 'M3 INFO: Waiting for M3 RPC Server to shutdown.'
         time.sleep(0.05)
-    print 'M3 INFO: M3 RPC Server exited normally.'
+    print "M3 INFO: M3 RPC Server exited normally."
 
 time.sleep(0.5)
 print("M3 INFO: Exiting")
