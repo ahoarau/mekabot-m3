@@ -5,7 +5,7 @@ set(LIBNAME "m3vehicles")
 
 m3generate_proto(ProtoSources ProtoHeaders PySources)
 
-set(LIBS ${LIBS} ${RTAI_LIBRARIES}  pthread ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PROTOBUF_LIBRARIES} holomni_pcv m3chains m3toolbox m3hardware m3base)
+set(LIBS ${LIBS} ${RTAI_LIBRARIES}  pthread ${Boost_LIBRARIES}  ${PROTOBUF_LIBRARIES} holomni_pcv m3chains m3toolbox m3hardware m3base)
 
 
 set( ALL_SRCS

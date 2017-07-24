@@ -4,7 +4,7 @@ set(LIBNAME "m3shared_mem")
 
 m3generate_proto(ProtoSources ProtoHeaders PySources)
 
-SET(LIBS ${RTAI_LIBRARIES}  pthread ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} m3chains m3robots m3hardware m3toolbox ${PROTOBUF_LIBRARIES} m3base)
+SET(LIBS ${RTAI_LIBRARIES}  pthread ${Boost_LIBRARIES}  m3chains m3robots m3hardware m3toolbox ${PROTOBUF_LIBRARIES} m3base)
 
 set( ALL_SRCS
 comp_shm.cpp

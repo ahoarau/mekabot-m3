@@ -1,4 +1,4 @@
-/* 
+/*
 M3 -- Meka Robotics Robot Components
 Copyright (c) 2010 Meka Robotics
 Author: edsinger@mekabot.com (Aaron Edsinger)
@@ -22,18 +22,13 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "m3/toolbox/toolbox.h"
 #include "m3rt/base/m3ec_def.h"
-#include <kdl/frames.hpp>
-#include <Eigen/Core>
-
-using namespace Eigen;
-
 
 namespace m3
 {
 using namespace std;
 using namespace KDL;
-	
-class M3AngleSensor 
+
+class M3AngleSensor
 {
 	public:
 		M3AngleSensor():tmp_cnt(0),val(0){}
@@ -56,7 +51,7 @@ class M3AngleSensor
 		mReal val;
 		mReal velocity;
 		int type;
-		int tmp_cnt;		
+		int tmp_cnt;
 		int err;
 };
 
@@ -64,7 +59,7 @@ class M3AngleSensor
 Temp sensor output is (generally) independent of supply voltage (3V3-5V)
 Some inputs to the ADC are scaled by 3.3/5.0
 USE adc_linear_3V3 for a signal that is fed directly to the ADC
-USE adc_linear_5V  for a signal that is scaled by 3.3/5.0 before being fed to the ADC 
+USE adc_linear_5V  for a signal that is scaled by 3.3/5.0 before being fed to the ADC
 USE adc_poly for ad-hoc calibration
 USE TMP_25C to provide a default temp of 25C in case no sensor present
 */
@@ -74,7 +69,7 @@ class M3TempSensor
 		M3TempSensor():val(0){}
 		virtual void Step(mReal ticks);
 		virtual mReal GetTempC(){return val;}
-		virtual mReal GetTempF(){return C2F(GetTempC());} 
+		virtual mReal GetTempF(){return C2F(GetTempC());}
 		virtual void ReadConfig(const YAML::Node & doc);
 	protected:
 		enum {NONE, ADC_POLY, ADC_LINEAR_3V3, ADC_LINEAR_5V, TEMP_25C, DSP_CALIB};
@@ -103,7 +98,7 @@ class M3CurrentSensor
 		virtual void ReadConfig(const YAML::Node& doc);
 		virtual int mAtoTicks(mReal milliamps);
 		virtual void SetZero(){val=0.0;}
-		
+
 	protected:
 		enum {NONE,  ADC_POLY, ADC_LINEAR_5V,ADC_LINEAR_5V_NS,LINEAR_AMP_VIA_DAC,
 			ADC_POLY_SINGLE,DSP_CALIB, DSP_TICKS, ADC_PHASE_MA};
@@ -121,7 +116,7 @@ class M3CurrentSensor
 
 };
 
-class M3TorqueSensor 
+class M3TorqueSensor
 {
 	public:
 		M3TorqueSensor():val(0),tmp_cnt(0){}
@@ -146,7 +141,7 @@ class M3TorqueSensor
 		int err;
 };
 
-class M3WrenchSensor 
+class M3WrenchSensor
 {
 	public:
 		//M3WrenchSensor() : temp(6),ticks(6), z(6), C(6,6), b(6){}
@@ -163,10 +158,10 @@ class M3WrenchSensor
 		//MatrixXf C;
 		//VectorXf b;
 		//VectorXf temp;
-		
+
 		vector<mReal> C;
 		vector<mReal> temp;
-		
+
 		vector<mReal> cb_fx;
 		vector<mReal> cb_fy;
 		vector<mReal> cb_fz;

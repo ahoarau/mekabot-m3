@@ -4,7 +4,7 @@ set(LIBNAME "m3robots")
 
 m3generate_proto(ProtoSources ProtoHeaders PySources)
 
-SET(LIBS ${RTAI_LIBRARIES}  pthread ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES} ${PROTOBUF_LIBRARIES} m3chains m3toolbox m3hardware ${orocos_kdl_LIBRARIES} m3base)
+SET(LIBS ${RTAI_LIBRARIES}  pthread ${Boost_LIBRARIES}  ${PROTOBUF_LIBRARIES} m3chains m3toolbox m3hardware ${orocos_kdl_LIBRARIES} m3base)
 
 
 set( ALL_SRCS

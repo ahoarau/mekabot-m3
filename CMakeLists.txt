@@ -30,7 +30,6 @@ endif()
 find_package(Boost REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(YamlCpp REQUIRED)
-find_package(Eigen3 REQUIRED)
 find_package(Threads REQUIRED)
 find_package(SWIG REQUIRED)
 find_package(PythonLibs 2.7 REQUIRED)
@@ -40,7 +39,6 @@ find_package(orocos_kdl REQUIRED)
 include_directories(
   ${Boost_INCLUDE_DIRS}
   ${YAMLCPP_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS}
   ${orocos_kdl_INCLUDE_DIRS}
   ${PROTOBUF_INCLUDE_DIR}
   ${CMAKE_CURRENT_BINARY_DIR}

@@ -6,7 +6,7 @@ set(LIBNAME "m3base")
 
 m3generate_proto(ProtoSources ProtoHeaders PySources)
 
-set(LIBS ${LIBS} ${YAMLCPP_LIBRARIES} ${PROTOBUF_LIBRARIES} pthread ${Boost_LIBRARIES} ${EIGEN3_LIBRARIES})
+set(LIBS ${LIBS} ${YAMLCPP_LIBRARIES} ${PROTOBUF_LIBRARIES} pthread ${Boost_LIBRARIES} )
 
 ## Get all the files sources and headers
 set( all_srcs
