@@ -1,5 +1,6 @@
 #!/bin/sh
-if [ "${UID}" != 0 ]; then SUDO="sudo "; else SUDO=""; fi
+
+
 
 #if test \! -c /dev/rtai_shm; then
 #	$SUDO mknod -m 666 /dev/rtai_shm c 10 254
@@ -13,9 +14,13 @@ if [ "${UID}" != 0 ]; then SUDO="sudo "; else SUDO=""; fi
 
 insmod=/sbin/insmod
 rmmod=/sbin/rmmod
-m3ko=/lib/modules/$(uname -r)/extra/m3ec.ko
+#m3ko=/lib/modules/$(uname -r)/extra/m3ec.ko
+m3ko=${CMAKE_INSTALL_PREFIX}/share/m3/m3ec.ko
 MODULES=/usr/realtime/modules
 
+if [ -d "$MODULES" ]; then
+    if [ "${UID}" != 0 ]; then SUDO="sudo "; else SUDO=""; fi
+fi
 
 if [ -f $MODULES/rtai_smi.ko ]
 then
