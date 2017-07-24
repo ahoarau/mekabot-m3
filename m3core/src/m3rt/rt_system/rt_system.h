@@ -203,7 +203,7 @@ namespace m3rt
         bool WaitForEcComponents(mReal timeout_ns=3e9);
 
         int GetEcCounter(){return shm_ec->counter;}
-        
+
         SEM * ready_sem;
         SEM * sync_sem;
         SEM * shm_sem;
@@ -270,16 +270,16 @@ namespace m3rt
             for(std::vector<std::string>::reverse_iterator it=vpath.rbegin();it!=vpath.rend();++it){
                 // Old notations (without the "-" is doesnt not guarranty order
                 std::cout<<std::endl;
-                M3_INFO("Reading %s for %s\n\n",(*it).c_str(),component_type);
+                M3_INFO("[M3RtSystem] Reading %s for %s\n\n",(*it).c_str(),component_type);
                 if( ret=this->ReadConfigUnordered(*it,component_type,comp_list,idx_map) && comp_list.size()>0){
-                    M3_WARN("Old config file detected, please update your %s\n",(*it).c_str());
+                    M3_WARN("[M3RtSystem] Old config file detected, please update your %s\n",(*it).c_str());
                     continue;
                 }
 
                 try{
                     ret = this->ReadConfigOrdered(*it,component_type,comp_list,idx_map);
                 }catch(std::exception &e){
-                    M3_ERR("Error while reading %s checking for %s config: %s\n",(*it).c_str(),component_type,e.what());
+                    M3_ERR("[M3RtSystem] Error while reading %s checking for %s config: %s\n",(*it).c_str(),component_type,e.what());
                 }
             }
             return ret;
@@ -291,11 +291,11 @@ namespace m3rt
                 YAML::Node doc;
 
                 doc = YAML::LoadFile(filename);
-                if(doc.IsNull()){M3_ERR("%s not found, please update the robot's config files.\n",filename.c_str()); return false;}
+                if(doc.IsNull()){M3_ERR("[M3RtSystem] %s not found, please update the robot's config files.\n",filename.c_str()); return false;}
 
 
                 if(!doc[component_type]){
-                    M3_INFO("No %s key in %s. Proceeding without it...\n",component_type,filename.c_str());
+                    M3_INFO("[M3RtSystem] No %s key in %s. Proceeding without it...\n",component_type,filename.c_str());
                     return true;
                 }
 
@@ -311,7 +311,7 @@ namespace m3rt
                         std::string type=it_dir->second.as<std::string>();
                         if(IsComponentInList(name,comp_list))
                         {
-                            M3_WARN("Component %s (of type %s) already loaded, please make sure your component's name is unique.\n",name.c_str(),type.c_str());
+                            M3_WARN("[M3RtSystem] Component %s (of type %s) already loaded, please make sure your component's name is unique.\n",name.c_str(),type.c_str());
                             continue;
                         }
                         T m = reinterpret_cast<T>(factory->CreateComponent(type));
@@ -326,10 +326,10 @@ namespace m3rt
                                     idx_map.push_back(GetNumComponents() - 1);
                                 } else {
                                     factory->ReleaseComponent(m);
-                                    M3_ERR("Error reading config for %s\n", name.c_str());
+                                    M3_ERR("[M3RtSystem] Error reading config for %s\n", name.c_str());
                                 }
                             } catch(...) {
-                                M3_WARN("Error while parsing config files for %s %s \n",component_type, name.c_str());
+                                M3_WARN("[M3RtSystem] Error while parsing config files for %s %s \n",component_type, name.c_str());
                                 factory->ReleaseComponent(m);
                             }
 
@@ -339,7 +339,7 @@ namespace m3rt
                 return true;
 
             }catch(std::exception &e){
-                //M3_ERR("(Unordered) Error while reading %s config (old config): %s\n",component_type,e.what());
+                //M3_ERR("[M3RtSystem] (Unordered) Error while reading %s config (old config): %s\n",component_type,e.what());
                 return false;
             }
             std::cout<<std::endl;
@@ -349,11 +349,11 @@ namespace m3rt
         {
             // New version with -ma17: -actuator1:type1 etc
             YAML::Node doc = YAML::LoadFile(filename);
-            if(doc.IsNull()){M3_ERR("%s not found, please update the robot's config files.\n",filename.c_str()); return false;}
+            if(doc.IsNull()){M3_ERR("[M3RtSystem] %s not found, please update the robot's config files.\n",filename.c_str()); return false;}
             //for(std::vector<YAML::Node>::const_iterator it_doc=all_docs.begin(); it_doc!=all_docs.end();++it_doc){
             //doc = *it_doc;
             if(!doc[component_type]){
-                M3_INFO("No %s keys in %s. Proceeding without it...\n",component_type,filename.c_str());
+                M3_INFO("[M3RtSystem] No %s keys in %s. Proceeding without it...\n",component_type,filename.c_str());
                 return true;
             }
             const YAML::Node& components = doc[component_type];
@@ -365,7 +365,7 @@ namespace m3rt
                     std::string type=it_dir->begin()->second.as<std::string>();
                     if(IsComponentInList(name,comp_list))
                     {
-                        M3_WARN("Component %s (of type %s) already loaded, please make sure your component's name is unique.\n",name.c_str(),type.c_str());
+                        M3_WARN("[M3RtSystem] Component %s (of type %s) already loaded, please make sure your component's name is unique.\n",name.c_str(),type.c_str());
                         continue;
                     }
                     T m = reinterpret_cast<T>(factory->CreateComponent(type));
@@ -380,10 +380,10 @@ namespace m3rt
                                 idx_map.push_back(GetNumComponents() - 1);
                             } else {
                                 factory->ReleaseComponent(m);
-                                M3_ERR("Error reading config for %s\n", name.c_str());
+                                M3_ERR("[M3RtSystem] Error reading config for %s\n", name.c_str());
                             }
                         } catch(...) {
-                            M3_WARN("Error while parsing config files for %s %s \n",component_type, name.c_str());
+                            M3_WARN("[M3RtSystem] Error while parsing config files for %s %s \n",component_type, name.c_str());
                             factory->ReleaseComponent(m);
                         }
 

@@ -32,21 +32,6 @@ static int step_cnt = 0;
 static RT_TASK * main_task;
 #endif
 
-unsigned long long getNanoSec(void)
-{
-#ifdef __RTAI__
-    return rt_get_cpu_time_ns();
-#endif
-    struct timeval tp;
-    struct timezone tzp;
-
-    tzp.tz_minuteswest = 0;
-
-    (void) gettimeofday(&tp, &tzp); //
-    return 1000000000LL * (long long) tp.tv_sec +
-            1000LL * (long long) tp.tv_usec;
-}
-
 
 void *rt_system_thread(void *arg)
 {
@@ -56,36 +41,36 @@ void *rt_system_thread(void *arg)
     int tmp_cnt = 0;
     bool ready_sent=false;
     int sem_cnt=0;
-    M3_INFO("Starting M3RtSystem real-time thread.\n");
+    M3_INFO("[M3RtSystem] Starting M3RtSystem real-time thread.\n");
 #ifdef __RTAI__
     rt_allow_nonroot_hrt();
     RTIME print_dt=1e9;
     RT_TASK *task=NULL;
     RTIME start, end, dt,tick_period,dt_wait;
 #ifdef ONESHOT_MODE
-    M3_INFO("Oneshot mode activated.\n");
+    M3_INFO("[M3RtSystem] Oneshot mode activated.\n");
     rt_set_oneshot_mode();
 #endif
     if ( !(rt_is_hard_timer_running() ))
     {
-        M3_INFO("Starting the real-time timer.\n");
+        M3_INFO("[M3RtSystem] Starting the real-time timer.\n");
         tick_period = start_rt_timer(nano2count(RT_TIMER_TICKS_NS) );
     }else{
-        M3_INFO("Real-time timer running.\n");
+        M3_INFO("[M3RtSystem] Real-time timer running.\n");
         tick_period = nano2count(RT_TIMER_TICKS_NS);
     }
-    M3_INFO("Beginning RTAI Initialization.\n");
+    M3_INFO("[M3RtSystem] Beginning RTAI Initialization.\n");
     if(!( task = rt_task_init_schmod(nam2num("M3SYS"), 0, 0, 0, SCHED_FIFO, 0xF))) {
-        m3rt::M3_ERR("Failed to create RT-TASK M3SYS\n", 0);
+        m3rt::M3_ERR("[M3RtSystem] Failed to create RT-TASK M3SYS\n", 0);
         m3sys->sys_thread_active = false;
         return 0;
     }
-    M3_INFO("RT Task Scheduled.\n");
-    M3_INFO("Nonroot hrt initialized.\n");
+    M3_INFO("[M3RtSystem] RT Task Scheduled.\n");
+    M3_INFO("[M3RtSystem] Nonroot hrt initialized.\n");
     rt_task_use_fpu(task, 1);
-    M3_INFO("Use fpu initialized.\n");
+    M3_INFO("[M3RtSystem] Use fpu initialized.\n");
     mlockall(MCL_CURRENT | MCL_FUTURE);
-    M3_INFO("Mem lock all initialized.\n");
+    M3_INFO("[M3RtSystem] Mem lock all initialized.\n");
     RTIME tick_period_orig = tick_period;
 
 #endif
@@ -101,28 +86,28 @@ void *rt_system_thread(void *arg)
     rt_sleep(nano2count((long long)1e9));
 #endif
     if(rt_task_make_periodic(task, rt_get_time() + tick_period, tick_period)) {
-        M3_ERR("Couldn't make rt_system task periodic.\n");
+        M3_ERR("[M3RtSystem] Couldn't make rt_system task periodic.\n");
         return 0;
     }
-    M3_INFO("Periodic task initialized.\n");
+    M3_INFO("[M3RtSystem] Periodic task initialized.\n");
 #endif
 #endif
 
 #ifndef __RTAI__
     usleep(1e6);
-    M3_INFO("Using pthreads\n");
+    M3_INFO("[M3RtSystem] Using pthreads\n");
 #endif
 
 #if defined(__RTAI__)
     if(!m3sys->IsHardRealTime()){
-        M3_INFO("Soft real time initialized.\n");
+        M3_INFO("[M3RtSystem] Soft real time initialized.\n");
         rt_make_soft_real_time();
     }else{
-        M3_INFO("Hard real time initialized.\n");
+        M3_INFO("[M3RtSystem] Hard real time initialized.\n");
         rt_make_hard_real_time();
     }
 #ifndef __NO_KERNEL_SYNC__
-    M3_INFO("Dry running components...\n");
+    M3_INFO("[M3RtSystem] Dry running components...\n");
     for(int i = 0; i < m3sys->GetNumComponents(); i++){
         m3sys->GetComponent(i)->SetVerbose(false);
 
@@ -146,13 +131,13 @@ void *rt_system_thread(void *arg)
         if (dry_run_ok==false && ((rt_get_time_ns() -print_start) > print_dt))
         {
             print_start = rt_get_time_ns();
-            M3_INFO("Components ready %d/%d\n",m3sys->GetNumComponents()-nerr,m3sys->GetNumComponents());
+            M3_INFO("[M3RtSystem] Components ready %d/%d\n",m3sys->GetNumComponents()-nerr,m3sys->GetNumComponents());
         }
         // If step wasn't ok, we give it another chance
         if(!dry_run_ok){
             m3sys->SetComponentStateOpAll();
         }else if(ntrialsmin<=0){
-            M3_INFO("All %d components successfully started.\n",m3sys->GetNumComponents());
+            M3_INFO("[M3RtSystem] All %d components successfully started.\n",m3sys->GetNumComponents());
             break;
         }
         // Timeout
@@ -165,7 +150,7 @@ void *rt_system_thread(void *arg)
         rt_task_wait_period();
     }
     if(!dry_run_ok){
-        M3_INFO("Dry run failed, server should stop now. Please restart it.\n");
+        M3_INFO("[M3RtSystem] Dry run failed, server should stop now. Please restart it.\n");
         return 0;
     }
     for(int i = 0; i < m3sys->GetNumComponents(); i++){
@@ -173,10 +158,10 @@ void *rt_system_thread(void *arg)
 
     }
 #endif
-    M3_INFO("Entering realtime loop.\n");
+    M3_INFO("[M3RtSystem] Entering realtime loop.\n");
 #endif
 #ifdef __NO_KERNEL_SYNC__
-    M3_INFO("Kernel sync is disabled (virtual installation only)\n");
+    M3_INFO("[M3RtSystem] Kernel sync is disabled (virtual installation only)\n");
 #endif
 #ifndef __RTAI__
     long long start, end, dt;
@@ -189,7 +174,7 @@ void *rt_system_thread(void *arg)
     while(1) {
         if(m3sys->sys_thread_end)
         {
-          M3_INFO("System thread end required, exiting realtime loop...\n");
+          M3_INFO("[M3RtSystem] System thread end required, exiting realtime loop...\n");
           break;
         }
 
@@ -197,7 +182,7 @@ void *rt_system_thread(void *arg)
 
         if(!m3sys->Step(safeop_only))  //This waits on m3ec.ko semaphore for timing
         {
-            M3_ERR("m3system step for all components returned false, exiting realtime loop...\n");
+            M3_ERR("[M3RtSystem] m3system step for all components returned false, exiting realtime loop...\n");
             break;
         }
 #ifdef __RTAI__
@@ -214,8 +199,8 @@ void *rt_system_thread(void *arg)
             overrun_us = dt_us - tick_period_us;
             rt_printk("Previous period: %d us overrun (dt: %d us, des_period: %d us)\n", overrun_us, dt_us, tick_period_us);
             if(m3sys->over_step_cnt > 5000) {
-                M3_INFO("Step %d: Computation time of components is too long (dt:%d). Forcing all components to state SafeOp - switching to SAFE REALTIME.\n", step_cnt,(int)(dt/1000.0));
-                M3_INFO("Previous period: %d. New period: %d\n", (int)(count2nano(tick_period)/1000), (int)(dt/1000));
+                M3_INFO("[M3RtSystem] Step %d: Computation time of components is too long (dt:%d). Forcing all components to state SafeOp - switching to SAFE REALTIME.\n", step_cnt,(int)(dt/1000.0));
+                M3_INFO("[M3RtSystem] Previous period: %d. New period: %d\n", (int)(count2nano(tick_period)/1000), (int)(dt/1000));
                 tick_period = nano2count(dt);
                 rt_make_soft_real_time();
                 rt_set_period(task,tick_period);
@@ -263,7 +248,7 @@ void *rt_system_thread(void *arg)
     rt_make_soft_real_time();
     rt_task_delete(task);
 #endif
-    M3_INFO("Realtime loop exited.\n");
+    M3_INFO("[M3RtSystem] Realtime loop exited.\n");
     m3sys->sys_thread_active = false;
     return 0;
 }
@@ -290,7 +275,7 @@ bool M3RtSystem::Startup()
 #endif
 
     if(!(ret==0)){
-        m3rt::M3_INFO("Startup of M3RtSystem thread failed (error code [%ld]).\n",ret);
+        m3rt::M3_INFO("[M3RtSystem] Startup of M3RtSystem thread failed (error code [%ld]).\n",ret);
         return false;
     }
     for(int i = 0; i < 10; i++) {
@@ -300,7 +285,7 @@ bool M3RtSystem::Startup()
 
     }
     if(!sys_thread_active) {
-        m3rt::M3_INFO("Startup of M3RtSystem thread failed, thread still not active.\n");
+        m3rt::M3_INFO("[M3RtSystem] Startup of M3RtSystem thread failed, thread still not active.\n");
         return false;
     }
     return true;
@@ -308,7 +293,7 @@ bool M3RtSystem::Startup()
 
 bool M3RtSystem::Shutdown()
 {
-    M3_INFO("Begin shutdown of M3RtSystem...\n");
+    M3_INFO("[M3RtSystem] Begin shutdown of M3RtSystem...\n");
     //Stop RtSystem thread
     sys_thread_end = true;
 
@@ -318,12 +303,12 @@ bool M3RtSystem::Shutdown()
     time_t start_time=time(0);
     while(sys_thread_active && (float)difftime(time(0),start_time) < timeout_s)
     {
-        m3rt::M3_INFO("Waiting for RtSystem thread to shutdown... (%.2fs/%.2fs)\n",(float)difftime(time(0),start_time) ,timeout_s);
+        m3rt::M3_INFO("[M3RtSystem] Waiting for RtSystem thread to shutdown... (%.2fs/%.2fs)\n",(float)difftime(time(0),start_time) ,timeout_s);
         usleep(500000);
     }
 
     if(sys_thread_active) {
-        m3rt::M3_WARN("M3RtSystem thread did not shutdown correctly\n");
+        m3rt::M3_WARN("[M3RtSystem] M3RtSystem thread did not shutdown correctly\n");
         //return false;
     }
 #ifdef __RTAI__
@@ -335,7 +320,7 @@ bool M3RtSystem::Shutdown()
         for(int i = n_comp; i > 0; --i){
             //long int shutdown_thread;
             //int ret = pthread_create((pthread_t *)&shutdown_thread, NULL, (void * ( *)(void *))shutdown, (void *)GetComponent(i-1));
-            M3_INFO("%s is shutting down...",GetComponentName(i-1).c_str());
+            M3_INFO("[M3RtSystem] %s is shutting down...",GetComponentName(i-1).c_str());
             GetComponent(i-1)->Shutdown();
             printf("OK (%d/%d)\n",n_comp-i+1,n_comp);
         }
@@ -359,9 +344,9 @@ bool M3RtSystem::Shutdown()
     shm_ec = NULL;
     shm_sem = NULL;
     sync_sem = NULL;
-    M3_INFO("Releaseing all components\n");
+    M3_INFO("[M3RtSystem] Releaseing all components\n");
     factory->ReleaseAllComponents();
-    M3_INFO("Shutdown of M3RtSystem complete\n");
+    M3_INFO("[M3RtSystem] Shutdown of M3RtSystem complete\n");
     return true;
 }
 
@@ -369,17 +354,17 @@ bool M3RtSystem::Shutdown()
 
 bool M3RtSystem::StartupComponents()
 {
-    M3_INFO("Reading components config files ...\n");
+    M3_INFO("[M3RtSystem] Reading components config files ...\n");
     if(!ReadConfig(M3_CONFIG_FILENAME,"ec_components",this->m3ec_list,this->idx_map_ec))
         return false;
     if(!ReadConfig(M3_CONFIG_FILENAME,"rt_components",this->m3rt_list,this->idx_map_rt))
         return false;
-    M3_INFO("Done reading components config files.\n");
+    M3_INFO("[M3RtSystem] Done reading components config files.\n");
 
 #ifdef __RTAI__
     main_task = rt_task_init_schmod(nam2num("M3MAIN"),RT_TASK_PRIORITY,RT_STACK_SIZE,0,SCHED_FIFO,0xF);
     if(!main_task){
-        M3_ERR("Unable to start M3RtSystem main RTAI task, abording.\n");
+        M3_ERR("[M3RtSystem] Unable to start M3RtSystem main RTAI task, abording.\n");
         return false;
     }
 #endif
@@ -387,24 +372,24 @@ bool M3RtSystem::StartupComponents()
 #ifdef __RTAI__
     sync_sem = (SEM *)rt_get_adr(nam2num(SEMNAM_M3SYNC));
     if(!sync_sem) {
-        M3_ERR("Unable to find the SYNCSEM semaphore.\n", 0);
+        M3_ERR("[M3RtSystem] Unable to find the SYNCSEM semaphore.\n", 0);
         return false;
     }
-    M3_INFO("Getting Kernel EC components.\n");
+    M3_INFO("[M3RtSystem] Getting Kernel EC components.\n");
 #ifndef __NO_KERNEL_SYNC__
     if(!rt_sem_wait_timed(sync_sem,nano2count(1e9)))
-        M3_WARN("Timeout for sync signal with kernel, all frames might not be processed.\n");
+        M3_WARN("[M3RtSystem] Timeout for sync signal with kernel, all frames might not be processed.\n");
 #endif
     shm_ec = (M3EcSystemShm *) rtai_malloc(nam2num(SHMNAM_M3MKMD), 1);
     if(shm_ec)
-        M3_INFO("Found %d active M3 EtherCAT slaves\n", shm_ec->slaves_active);
+        M3_INFO("[M3RtSystem] Found %d active M3 EtherCAT slaves\n", shm_ec->slaves_active);
     else {
-        M3_ERR("Rtai_malloc failure for SHMNAM_M3KMOD\n", 0);
+        M3_ERR("[M3RtSystem] Rtai_malloc failure for SHMNAM_M3KMOD\n", 0);
         return false;
     }
     shm_sem = (SEM *)rt_get_adr(nam2num(SEMNAM_M3LSHM));
     if(!shm_sem) {
-        M3_ERR("Unable to find the SEMNAM_M3LSHM semaphore.\n", 0);
+        M3_ERR("[M3RtSystem] Unable to find the SEMNAM_M3LSHM semaphore.\n", 0);
         return false;
     }
 
@@ -413,16 +398,16 @@ bool M3RtSystem::StartupComponents()
     int fd = shm_open(SHMNAM_M3MKMD, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
     if(fd == -1)
     {
-        M3_ERR("Could not create posix shared memory\n");
+        M3_ERR("[M3RtSystem] Could not create posix shared memory\n");
     }
     if(ftruncate(fd, sizeof(M3EcSystemShm)) == -1 )
     {
-        M3_ERR("Could not ftruncate the shared memory\n");
+        M3_ERR("[M3RtSystem] Could not ftruncate the shared memory\n");
     }
     shm_ec = (M3EcSystemShm*)mmap(NULL, sizeof(M3EcSystemShm),PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if(shm_ec == MAP_FAILED)
     {
-        M3_ERR("mmap failed\n");
+        M3_ERR("[M3RtSystem] mmap failed\n");
     }
     memset(shm_ec,0,sizeof(M3EcSystemShm));
     ext_sem  = sem_open(SEMNAM_M3LEXT,O_CREAT, S_IRUSR | S_IWUSR, 0);
@@ -431,7 +416,7 @@ bool M3RtSystem::StartupComponents()
     sem_init(sync_sem, 1, 1);
 #endif
     if(!ext_sem) {
-        M3_ERR("Unable to find the M3LEXT semaphore (probably hasn't been cleared properly, reboot can solve this problem).\n");
+        M3_ERR("[M3RtSystem] Unable to find the M3LEXT semaphore (probably hasn't been cleared properly, reboot can solve this problem).\n");
         //return false;
     }
 
@@ -442,10 +427,10 @@ bool M3RtSystem::StartupComponents()
     sem_init(ready_sem, 1, 1);
 #endif
     if(!ready_sem) {
-        M3_ERR("Unable to find the M3READY semaphore.\n");
+        M3_ERR("[M3RtSystem] Unable to find the M3READY semaphore.\n");
         //return false;
     }
-    M3_INFO("Matching Kernel EC components with config file... %d components to process ...\n",m3ec_list.size());
+    M3_INFO("[M3RtSystem] Matching Kernel EC components with config file... %d components to process ...\n",m3ec_list.size());
     int rm_cnt=0;
     for(vector<M3ComponentEc *>::iterator it_ec=m3ec_list.begin();it_ec!=m3ec_list.end();/*++it_ec*/){
         if(!shm_ec || (*it_ec)->SetSlaveEcShm(shm_ec->slave, shm_ec->slaves_responding) == false){
@@ -466,13 +451,13 @@ bool M3RtSystem::StartupComponents()
     //Keep dropping until no failures
     vector<M3Component *> bad_link;
     bool failure = true;
-    M3_INFO("Linking components ...\n");
+    M3_INFO("[M3RtSystem] Linking components ...\n");
     while(GetNumComponents() > 0 && failure) {
         bad_link.clear();
         failure = false;
         for(int i = 0; i < GetNumComponents(); i++) {
             if(!GetComponent(i)->LinkDependentComponents()) {
-                M3_WARN("Failure LinkDependentComponents for %s\n", GetComponent(i)->GetName().c_str());
+                M3_WARN("[M3RtSystem] Failure LinkDependentComponents for %s\n", GetComponent(i)->GetName().c_str());
                 failure = true;
                 bad_link.push_back(GetComponent(i));
             }
@@ -499,29 +484,29 @@ bool M3RtSystem::StartupComponents()
     }
 
     if(GetNumComponents() == 0) {
-        M3_WARN("No M3 Components could be loaded....\n", 0);
+        M3_WARN("[M3RtSystem] No M3 Components could be loaded....\n", 0);
         return false;
     }
-    M3_INFO("Done linking %d components.\n",GetNumComponents());
-    M3_INFO("Starting up %d components ...\n",GetNumComponents());
+    M3_INFO("[M3RtSystem] Done linking %d components.\n",GetNumComponents());
+    M3_INFO("[M3RtSystem] Starting up %d components ...\n",GetNumComponents());
     for(int i = 0; i < GetNumComponents(); i++) {
         GetComponent(i)->Startup();
     }
-    M3_INFO("Done starting up components.\n");
+    M3_INFO("[M3RtSystem] Done starting up components.\n");
     CheckComponentStates();
     PrettyPrintComponentNames();
     //Setup Monitor
-    M3_INFO("Setup monitor for RT components.\n");
+    M3_INFO("[M3RtSystem] Setup monitor for RT components.\n");
     M3MonitorStatus *s = factory->GetMonitorStatus();
     for(int i = 0; i < GetNumComponents(); i++) {
         M3MonitorComponent *c = s->add_components();
         c->set_name(GetComponent(i)->GetName());
     }
-    M3_INFO("Adding EC domains for EC components.\n");
+    M3_INFO("[M3RtSystem] Adding EC domains for EC components.\n");
     for(int i = 0; i < NUM_EC_DOMAIN; i++) {
         s->add_ec_domains();
     }
-    M3_INFO("M3RtSystem : StartupComponents completed.\n");
+    M3_INFO("[M3RtSystem] StartupComponents completed.\n");
     return true;
 }
 
@@ -536,8 +521,8 @@ bool M3RtSystem::ParseCommandFromExt(M3CommandAll &msg)
             s = msg.datum_cmd(i);
             GetComponent(idx)->ParseCommand(s);
         } else {
-            //M3_WARN("Invalid Command component name %s in ParseCommandFromExt\n",s.c_str());
-            M3_WARN("Invalid Command component name %s in ParseCommandFromExt\n", msg.name_cmd(i).c_str());
+            //M3_WARN("[M3RtSystem] Invalid Command component name %s in ParseCommandFromExt\n",s.c_str());
+            M3_WARN("[M3RtSystem] Invalid Command component name %s in ParseCommandFromExt\n", msg.name_cmd(i).c_str());
 
         }
     }
@@ -548,7 +533,7 @@ bool M3RtSystem::ParseCommandFromExt(M3CommandAll &msg)
             s = msg.datum_param(i);
             GetComponent(idx)->ParseParam(s);
         } else {
-            M3_WARN("Invalid Param component name %s in ParseCommandFromExt\n", s.c_str());
+            M3_WARN("[M3RtSystem] Invalid Param component name %s in ParseCommandFromExt\n", s.c_str());
         }
     }
 
@@ -588,7 +573,7 @@ void M3RtSystem::CheckComponentStates()
         return;
     for(int i = 0; i < GetNumComponents(); i++) {
         if(GetComponent(i)->IsStateError()) { //All or none in OP
-            M3_WARN("Component error detected for %s. Forcing to state SAFEOP\n", GetComponent(i)->GetName().c_str());
+            M3_WARN("[M3RtSystem] Component error detected for %s. Forcing to state SAFEOP\n", GetComponent(i)->GetName().c_str());
 
             safeop_required = true;
             GetComponent(i)->SetStateSafeOp();
@@ -696,11 +681,7 @@ void M3RtSystem::PrettyPrintComponent(int idx)
 
 bool M3RtSystem::Step(bool safeop_only,bool dry_run)
 {
-#ifdef __RTAI__
     RTIME start, end, dt, start_c, end_c, start_p, end_p;
-#else
-    long long start, end, dt, start_c, end_c, start_p, end_p;
-#endif
     bool ret_step=true;
     vector<M3ComponentEc *>::iterator j;
     step_cnt++;

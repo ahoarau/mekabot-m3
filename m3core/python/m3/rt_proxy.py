@@ -74,7 +74,7 @@ class M3RtProxy:
                 self.proxy.system.listMethods()
             except xmlrpclib.Error, v:
                 self.proxy=None
-                raise m3t.M3Exception('Error: '+v+'Make sure that the M3 RPC Server is running')
+                raise m3t.M3Exception('Error: '+str(v)+'Make sure that the M3 RPC Server is running')
         except socket.error, msg:
             self.proxy=None
             raise m3t.M3Exception('Check that server is started. Socket Error: '+str(msg))
@@ -473,7 +473,6 @@ class M3RtProxy:
         try:
             try:
                 self.rtsys_id=self.proxy.AttachRtSystem()
-                print "Rt System attached with id ",self.rtsys_id
                 if self.rtsys_id==-1:
                     raise m3t.M3Exception('M3RtSystem still online')
                 if self.rtsys_id==0: #failed to start
@@ -487,12 +486,12 @@ class M3RtProxy:
             #Query available components
             self.available_components=[]
             n=self.proxy.GetNumComponents()
-            for i in range(n):
+            for i in xrange(n):
                 name=self.proxy.GetComponentName(i)
                 self.available_components.append(name)
             #Query component types
             self.available_component_types=[]
-            for i in range(n):
+            for i in xrange(n):
                 ttype=self.proxy.GetComponentType(i)
                 self.available_component_types.append(ttype)
         except socket.error, msg:

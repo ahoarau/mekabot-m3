@@ -36,7 +36,7 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __RTAI__
 #include <semaphore.h>
 
-#define RTIME long long
+#define RTIME unsigned long long
 #define SEM sem_t
 #define rt_sem_wait sem_wait
 #define rt_sem_signal sem_post
@@ -65,6 +65,21 @@ extern "C" {
 }  // extern "C"
 #endif
 #endif
+
+inline unsigned long long getNanoSec(void)
+{
+#ifdef __RTAI__
+    return rt_get_cpu_time_ns();
+#endif
+    struct timeval tp;
+    struct timezone tzp;
+
+    tzp.tz_minuteswest = 0;
+
+    (void) gettimeofday(&tp, &tzp); //
+    return 1000000000LL * (long long) tp.tv_sec +
+            1000LL * (long long) tp.tv_usec;
+}
 
 
 namespace m3rt

@@ -74,10 +74,10 @@ def stop_log_service():
 def get_log_file(logfilename):
     try:
         with open(logfilename, "rb") as f:
-	    s=f.read()
+            s=f.read()
             return xmlrpclib.Binary(s)
-    except IOError:
-        return ''
+    except IOError,e:
+         print e
 
 def get_log_info(logname,logpath=None):
     return m3t.get_log_info(logname,logpath)
@@ -147,10 +147,10 @@ for idx in range(1,len(sys.argv)):
         port=int(sys.argv[idx+1])
     elif sys.argv[idx]=='-make_op_all' or sys.argv[idx]=='-m':
         make_op_all = True
-	make_op_all_no_shm = False
+        make_op_all_no_shm = False
     elif sys.argv[idx]=='-make_op_all_shm' or sys.argv[idx]=='-s':
         make_op_all_shm = True
-	make_op_all_no_shm = False
+        make_op_all_no_shm = False
     elif sys.argv[idx]=='-make_op_all_no_shm' or sys.argv[idx]=='-n':
         make_op_all_no_shm = True
     elif sys.argv[idx]=='-start_data_svc' or sys.argv[idx]=='-d':
@@ -171,8 +171,8 @@ for idx in range(1,len(sys.argv)):
 try:
     svc=m3.m3rt_system.M3RtService()
     if not svc.Startup(): # Let client start rt_system
-	print("M3 ERROR: M3RtService failed to start, exiting.")
-	exit(-1)
+        print("M3 ERROR: M3RtService failed to start, exiting.")
+        exit(-1)
     #for i in xrange(40):
     #    time.sleep(0.05)
     # Instantiate the server
@@ -201,7 +201,7 @@ try:
     # Handling ctrl+c when ros is launched
     while svc.IsRtSystemOperational() and not stop_signal.is_set():
         try:
-			time.sleep(0.250)
+            time.sleep(0.250)
         except KeyboardInterrupt:
             print 'M3 INFO: Shutdown signal caught.'
     print "M3 INFO: Shutdown initiated."
@@ -224,7 +224,7 @@ if m3server and m3server.is_alive():
     print "M3 INFO: Shutting down M3 RPC Server."
     m3server.server.shutdown()
     while m3server.is_alive():
-	print 'M3 INFO: Waiting for M3 RPC Server to shutdown.'
+        print 'M3 INFO: Waiting for M3 RPC Server to shutdown.'
         time.sleep(0.05)
     print 'M3 INFO: M3 RPC Server exited normally.'
 
