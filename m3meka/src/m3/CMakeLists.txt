@@ -7,12 +7,8 @@ set(SUBS
   robots
   toolbox
   vehicles
+  shared_mem
 )
-
-if(RTAI_FOUND)
-  list(APPEND SUBS
-  shared_mem)
-endif()
 
 foreach(SUB ${SUBS})
   include_directories(${CMAKE_CURRENT_BINARY_DIR}/${SUB})

@@ -7,17 +7,14 @@ m3generate_proto(ProtoSources ProtoHeaders PySources)
 SET(LIBS ${RTAI_LIBRARIES}  pthread ${Boost_LIBRARIES}  m3chains m3robots m3hardware m3toolbox ${PROTOBUF_LIBRARIES} m3base)
 
 set( ALL_SRCS
-comp_shm.cpp
-factory_proxy.cpp
-torque_shm.cpp
-
+    factory_proxy.cpp
+    torque_shm.cpp
 )
 set( ALL_HDRS
-comp_shm.h
-torque_shm.h
-torque_shm_sds.h
-
+    torque_shm.h
+    torque_shm_sds.h
 )
+
 list(APPEND ALL_SRCS ${ProtoSources})
 
 

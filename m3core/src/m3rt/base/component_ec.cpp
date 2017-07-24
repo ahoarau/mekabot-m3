@@ -115,29 +115,29 @@ void  M3ComponentEc::StepStatus()
     M3EtherCATStatus * status = GetEcStatus();
     if (virtual_mode)
     {
-	status->set_online(1);
-	status->set_operational(1);
-	status->set_al_state(8);
-	status->set_active(1);
-	SetStatusFromPdoVirtual();
+    	status->set_online(1);
+    	status->set_operational(1);
+    	status->set_al_state(8);
+    	status->set_active(1);
+    	SetStatusFromPdoVirtual();
     }
     else
     {
-	if (!shm)
-	{
-		SetStateSafeOp();
-		return;
-	}
+    	if (!shm)
+    	{
+    		SetStateSafeOp();
+    		return;
+    	}
 	//if (!IsStateError())
 		SetStatusFromPdo(shm->status);
 
-	status->set_online(shm->online);
-	status->set_operational(shm->operational);
-	status->set_al_state(shm->al_state);
-	status->set_active(shm->active);
-	//Do this last
-	if (IsEcError() && IsStateError())
-		SetStateError();
+    	status->set_online(shm->online);
+    	status->set_operational(shm->operational);
+    	status->set_al_state(shm->al_state);
+    	status->set_active(shm->active);
+    	//Do this last
+    	if (IsEcError() && IsStateError())
+    		SetStateError();
         else
             SetStateOp();
     }

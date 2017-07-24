@@ -85,11 +85,11 @@ namespace m3rt
     void  M3CompShm::Startup()
     {
         SetStateSafeOp();
-        #ifdef __RTAI__
+#ifdef __RTAI__
         command_sem = rt_typed_sem_init(nam2num((shm_id+"C").c_str()), 1, BIN_SEM | FIFO_Q );
         status_sem = rt_typed_sem_init(nam2num((shm_id+"S").c_str()), 1, BIN_SEM | FIFO_Q );
         shm = (M3Sds*)rt_shm_alloc(nam2num((shm_id+"M").c_str()),sizeof(M3Sds),USE_VMALLOC);
-        #else
+#else
         command_sem = sem_open ((shm_id+"C").c_str(), O_CREAT, 0660, 0);
         status_sem = sem_open ((shm_id+"S").c_str(), O_CREAT, 0660, 0);
 
@@ -118,15 +118,15 @@ namespace m3rt
         {
             M3_ERR("mmap failed\n");
         }
-        #endif
+#endif
         memset(shm,0,sizeof(M3Sds));
     }
 
     void  M3CompShm::Shutdown()
     {
-        #ifdef __RTAI__
+#ifdef __RTAI__
         rt_shm_free(nam2num((shm_id+"M").c_str()));
-        #endif
+#endif
         rt_sem_delete(command_sem);
         rt_sem_delete(status_sem);
     }
