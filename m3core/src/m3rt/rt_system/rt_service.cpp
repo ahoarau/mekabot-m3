@@ -1,4 +1,4 @@
-/* 
+/*
 M3 -- Meka Robotics Real-Time Control System
 Copyright (c) 2010 Meka Robotics
 Author: edsinger@mekabot.com (Aaron Edsinger)
@@ -121,16 +121,18 @@ int M3RtService::AttachRtSystem()
 
     rt_system = new m3rt::M3RtSystem(&factory);
 
+    m3rt::M3_INFO("Calling startup for RTSystem...\n");
+
     if (!rt_system->Startup())
     {
-        m3rt::M3_INFO("Startup of M3RtSystem failed. Shutting down\n",0);
+        m3rt::M3_ERR("Startup of M3RtSystem failed. Shutting down\n",0);
         rt_system->Shutdown();
         delete rt_system;
         rt_system=NULL;
         num_rtsys_attach=0;
         return 0;
     }
-
+    m3rt::M3_INFO("RTSystem startup succeeded\n");
     return ++num_rtsys_attach;
 }
 
@@ -247,7 +249,7 @@ int M3RtService::AttachDataService()
 }
 
 bool M3RtService::RemoveDataService(int port)
-{	
+{
     m3rt::M3_INFO("Removing data service in port %d\n",port);
     int idx=-1;
     for (int i=0; i<data_services.size(); i++)
@@ -376,7 +378,7 @@ bool M3RtService::PrettyPrintRtSystem()
 {
     if (rt_system==NULL)
     return false;
-    
+
     if (!IsRosServiceRunning())
     {
     return false;
@@ -395,5 +397,3 @@ bool M3RtService::RemoveRosService()
 {
     return true;
 }
-
-

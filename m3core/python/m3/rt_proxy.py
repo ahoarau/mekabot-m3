@@ -31,18 +31,20 @@ import select
 class M3RtProxy:
     def __init__(self,host=None,rpc_port=8000,verbose=True):
         """M3RtProxy is the client interface to the M3RtServer.
-    It manages the state of the server using XML_RPC methods. 
+    It manages the state of the server using XML_RPC methods.
     It can query the server state,
     start/stop the run-time system, create a DataService connection,
     and publish/subscribe desired components to the DataService.
     The DataService uses a faster TCP/IP socket on port 10000"""
+
         self.stopped = False
         self.host=host
         self.verbose=verbose
         if host is None:
-            self.host=m3t.get_config_hostname()
+            self.host = m3t.get_config_hostname()
         if self.host is None:
             self.host = m3t.get_local_hostname()
+
         self.rpc_port=rpc_port
         self.data_port=10000 #Currently hardcoded in M3
         self.proxy=None
@@ -64,8 +66,9 @@ class M3RtProxy:
         self.use_timeout=True
         self.is_server_started=False
         try:
-            self.proxy = xmlrpclib.ServerProxy('http://'+self.host+':'+str(self.rpc_port))
             if self.verbose: print 'Starting M3 RPC Client at ',self.host, 'on Port ',self.rpc_port,'...'
+            self.proxy = xmlrpclib.ServerProxy('http://'+self.host+':'+str(self.rpc_port))
+            if self.verbose: print 'M3 RPC Client started at ',self.host, 'on Port ',self.rpc_port
             #Check that connection made
             try:
                 self.proxy.system.listMethods()
@@ -76,21 +79,24 @@ class M3RtProxy:
             self.proxy=None
             raise m3t.M3Exception('Check that server is started. Socket Error: '+str(msg))
 
-    # ###########################################################################################    
-    def step(self):    
+    # ###########################################################################################
+    def step(self):
         """Update the server with commands and parameters. Fetch new status data.
-    This should be called periodically within the main loop"""        
+    This should be called periodically within the main loop"""
         self.__send_command()
-        self.__recv_status()        
+        self.__recv_status()
 
     def start(self,start_data_svc=True,start_ros_svc=False):
         """Startup the RtSystem on the server. This will load all available components
     and begin execution in state SAFEOP. It can also start a DataService"""
-        if not self.is_server_started:
-            self.__start_rt_system()
+        try:
+            if not self.is_server_started:
+                self.__start_rt_system()
+        except Exception,e:
+            raise m3t.M3Exception('self.__start_rt_system() failed, some components might be faulty ; '+str(e))
         self.data_svc = start_data_svc
         self.ros_svc = start_ros_svc
-        
+
         if start_data_svc and not self.is_server_started:
             self.__start_data_service()
 
@@ -101,9 +107,9 @@ class M3RtProxy:
         if not self.stopped:
             print 'M3 WARNING: make sure to call proxy.stop() at the end of your script.'
             self.stop()
-            
+
     def stop(self, force_safeop=True):
-        """Stop the RtSystem and any running data service on the server. 
+        """Stop the RtSystem and any running data service on the server.
     This should be called at client process shutdown
     Will automatically move all components to SAFEOP by default (for safety)"""
         try:
@@ -158,29 +164,29 @@ class M3RtProxy:
         names=self.get_available_components()
         for n in names:
             if string.count(n,'shm') == 0: # ignore shared memory components
-                self.proxy.SetComponentStateOp(n)    
-                
+                self.proxy.SetComponentStateOp(n)
+
     def make_safe_operational_all(self):
         """Place all components in state SAFEOP"""
         names=self.get_available_components()
-        for n in names:            
+        for n in names:
             if string.count(n,'shm') == 0: # ignore shared memory components
                 self.proxy.SetComponentStateSafeOp(n)
-                
+
     def make_operational_all_shm(self):
         """Place all components in state OP"""
         names=self.get_available_components()
         for n in names:
             if string.count(n,'shm') > 0: # only shared memory components
                 self.proxy.SetComponentStateOp(n)
-                
+
     def make_safe_operational_all_shm(self):
         """Place all components in state SAFEOP"""
         names=self.get_available_components()
-        for n in names:            
+        for n in names:
             if string.count(n,'shm') > 0: # only shared memory components
                 self.proxy.SetComponentStateSafeOp(n)
-            
+
     # TODO: Fix this on m3rt side
     '''def add_ros_component(self, name):
         """Start the ros nodes for this component"""
@@ -252,7 +258,7 @@ class M3RtProxy:
         for k,v in self.published_param.items():
             m3t.SetMsgFromDict(v['param'],d[k])
 
-    # ###################################### Utility Functions #################################################################   
+    # ###################################### Utility Functions #################################################################
 
     def get_joint_components(self):
         """Get a list of available components on the server of common joint types"""
@@ -261,13 +267,13 @@ class M3RtProxy:
         c+=self.get_available_components('m3joint_slave')
         c+=self.get_available_components('m3joint_zlift')
         return c
-    
+
     def get_chain_components(self):
         """Get a list of available components on the server of common joint types"""
         c=[]
         c+=self.get_available_components('m3arm')
         c+=self.get_available_components('m3torso')
-        c+=self.get_available_components('m3head')        
+        c+=self.get_available_components('m3head')
         return c
 
     def get_available_components(self,ctype=None):
@@ -282,7 +288,7 @@ class M3RtProxy:
 
     def get_num_components(self):
         return self.proxy.GetNumComponents()
-    
+
     def is_component_available(self,name):
         """Is component loaded on the server"""
         if self.proxy is None:
@@ -309,10 +315,10 @@ class M3RtProxy:
             print 'State: ',n,' : ',states[self.proxy.GetComponentState(n)]
 
     # ################################### Logging Service #################################################
-    # The STATUS message of particular components can be logged to disk by the server. 
+    # The STATUS message of particular components can be logged to disk by the server.
     # Theses log files are in the Google protocol buffer serialization format
-    # The client can then interatively load the files from the server disk into a locally 
-    # registered component. 
+    # The client can then interatively load the files from the server disk into a locally
+    # registered component.
     # Each log requires a logname. The server will place all logfiles into a directory by that name, and delete
     # any pre-existing files. Thus log directories should be backed up before reusing a name.
     # Each log session runs stores messages at a fixed frequency up to the M3RtSystem cycle frequency.
@@ -386,7 +392,7 @@ class M3RtProxy:
                 if name==status_all.name[i]:
                     self.log_comps[name].status.ParseFromString(status_all.datum[i])
 
-# #################################### Private methods ################################################################   
+# #################################### Private methods ################################################################
 
     def __send_command(self):
         if self.data_socket is None:
@@ -403,7 +409,7 @@ class M3RtProxy:
             v['component'].load_param()
             self.command_raw.datum_param[idx]=v['param'].SerializeToString()
             idx=idx+1
-        ## A.H : Sending floats allows to run on 64 bits machines : 
+        ## A.H : Sending floats allows to run on 64 bits machines :
         ## sizeof(int) in python32 : 4 bits
         ## sizeof(float) in python64 : 8 bits -> server hangs
         ## WORKAROUND : send floats that weights =4 bits so x86 and x64 speak the same language
@@ -412,7 +418,7 @@ class M3RtProxy:
         nc=array.array('f',[self.command_raw.ByteSize()]).tostring()
         sc=self.command_raw.SerializeToString()
         self.data_socket.sendall(nh+nc+sc)
-        
+
     def __do_receive(self,nr,timeout_total=4.0,timeout_chunk = 2.0):
         msg = ''
         chunk=''
@@ -463,19 +469,21 @@ class M3RtProxy:
         if type!=component.type:
             raise m3t.M3Exception('Component type mismatch '+type+' , '+component.type)
 
-    # THIS IS NOT USED ANYMORE.  REPLACED BY ROS SHARED MEMORY INTERFACE
     def __start_rt_system(self):
         try:
             try:
                 self.rtsys_id=self.proxy.AttachRtSystem()
+                print "Rt System attached with id ",self.rtsys_id
                 if self.rtsys_id==-1:
-		    raise m3t.M3Exception('M3RtSystem still online')
+                    raise m3t.M3Exception('M3RtSystem still online')
                 if self.rtsys_id==0: #failed to start
-		    print "Attaching a new rt system failed"
+                    print "Attaching a new rt system failed"
                     self.stop()
                     raise m3t.M3Exception('Unable to start M3RtSystem. Try restarting server')
             except xmlrpclib.ProtocolError,v:
-                raise m3t.M3Exception(v)
+                raise m3t.M3Exception("xmlrpclib.ProtocolError "+str(v))
+            except Exception,e:
+                raise m3t.M3Exception("__start_rt_system "+str(e))
             #Query available components
             self.available_components=[]
             n=self.proxy.GetNumComponents()
@@ -489,6 +497,8 @@ class M3RtProxy:
                 self.available_component_types.append(ttype)
         except socket.error, msg:
             raise m3t.M3Exception('Check that server is started. Socket Error: '+str(msg))
+        except Exception,e:
+            raise m3t.M3Exception('GetNumComponents failed '+str(e))
 
     def __stop_data_service(self):
         try:
@@ -497,7 +507,7 @@ class M3RtProxy:
             if self.data_socket is not None:
                 self.data_socket.close()
             self.data_socket=None
-        except socket.error, msg:
+        except socket.error:
             pass #Ok because shutting down
 
     def __start_data_service(self):

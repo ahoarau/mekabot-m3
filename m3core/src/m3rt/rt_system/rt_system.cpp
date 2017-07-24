@@ -31,8 +31,12 @@ static int step_cnt = 0;
 #ifdef __RTAI__
 static RT_TASK * main_task;
 #endif
+
 unsigned long long getNanoSec(void)
 {
+#ifdef __RTAI__
+    return rt_get_cpu_time_ns();
+#endif
     struct timeval tp;
     struct timezone tzp;
 
@@ -188,11 +192,9 @@ void *rt_system_thread(void *arg)
           M3_INFO("System thread end required, exiting realtime loop...\n");
           break;
         }
-#ifdef __RTAI__
-        start = rt_get_cpu_time_ns();
-#else
+
         start = getNanoSec();
-#endif
+
         if(!m3sys->Step(safeop_only))  //This waits on m3ec.ko semaphore for timing
         {
             M3_ERR("m3system step for all components returned false, exiting realtime loop...\n");
@@ -248,12 +250,12 @@ void *rt_system_thread(void *arg)
         }
         end = getNanoSec();
         dt = end - start;
-        if(tmp_cnt++==1000)
+        if(tmp_cnt++ > 1000)
         {
             tmp_cnt=0;
-            std::cout<<"Loop computation time : "<<dt/1000<<" us (sleeping "<<( RT_TIMER_TICKS_NS - ((unsigned int)dt)) / 1000000 <<" us)"<<endl;
+            std::cout<<"Loop computation time : "<<dt/1000<<" us (sleeping "<<( RT_TIMER_TICKS_NS - dt) / 1000 <<" us)"<<endl;
         }
-        usleep((RT_TIMER_TICKS_NS - ((unsigned int)dt)) / 1000);
+        usleep((RT_TIMER_TICKS_NS - dt) / 1000);
 #endif
         tmp_cnt++;
     }
@@ -499,14 +501,17 @@ bool M3RtSystem::StartupComponents()
     CheckComponentStates();
     PrettyPrintComponentNames();
     //Setup Monitor
+    M3_INFO("Setup monitor for RT components.\n");
     M3MonitorStatus *s = factory->GetMonitorStatus();
     for(int i = 0; i < GetNumComponents(); i++) {
         M3MonitorComponent *c = s->add_components();
         c->set_name(GetComponent(i)->GetName());
     }
+    M3_INFO("Adding EC domains for EC components.\n");
     for(int i = 0; i < NUM_EC_DOMAIN; i++) {
         s->add_ec_domains();
     }
+    M3_INFO("M3RtSystem : StartupComponents completed.\n");
     return true;
 }
 
@@ -747,7 +752,6 @@ bool M3RtSystem::Step(bool safeop_only,bool dry_run)
 
     }
 
-
     int nop = 0, nsop = 0, nerr = 0;
     for(int i = 0; i < GetNumComponents(); i++) {
         if(GetComponent(i)->IsStateError()) nerr++;
@@ -756,6 +760,7 @@ bool M3RtSystem::Step(bool safeop_only,bool dry_run)
         M3MonitorComponent *c = s->mutable_components(i);
         c->set_state((M3COMP_STATE)GetComponent(i)->GetState());
     }
+
     if(m3ec_list.size() != 0) {
         for(int i = 0; i < NUM_EC_DOMAIN; i++) {
             s->mutable_ec_domains(i)->set_t_ecat_wait_rx(shm_ec->monitor[i].t_ecat_wait_rx);
@@ -784,103 +789,81 @@ bool M3RtSystem::Step(bool safeop_only,bool dry_run)
     for(int i = 0; i < GetNumComponents(); i++)
         GetComponent(i)->SetTimestamp(ts);
 
-#ifdef __RTAI__
-    start_p = rt_get_cpu_time_ns();
-#else
     start_p = getNanoSec();
-#endif
 
-#ifdef __RTAI__
+//#ifdef __RTAI__
     //Get Status from EtherCAT
     for(int j = 0; j <= MAX_PRIORITY; j++) {
         for(int i = 0; i < m3ec_list.size(); i++) { //=m3ec_list.begin(); j!=m3ec_list.end(); ++j)
             if(m3ec_list[i]->GetPriority() == j) {
-                start_c = rt_get_cpu_time_ns();
+                start_c = getNanoSec();
                 m3ec_list[i]->StepStatus();
-                end_c = rt_get_cpu_time_ns();
+                end_c = getNanoSec();
                 M3MonitorComponent *c = s->mutable_components(idx_map_ec[i]);
                 c->set_cycle_time_status_us((mReal)(end_c - start_c) / 1000);
             }
         }
     }
-#endif
-
+//#endif
     //Set Status on non-EC components
     for(int j = 0; j <= MAX_PRIORITY; j++) {
         for(int i = 0; i < m3rt_list.size(); i++) {
             if(m3rt_list[i]->GetPriority() == j) {
-
-#ifdef __RTAI__
-                start_c = rt_get_cpu_time_ns();
-#else
                 start_c = getNanoSec();
-#endif
                 m3rt_list[i]->StepStatus();
-#ifdef __RTAI__
-                end_c = rt_get_cpu_time_ns();
-#else
                 end_c = getNanoSec();
-#endif
                 M3MonitorComponent *c = s->mutable_components(idx_map_rt[i]);
                 c->set_cycle_time_status_us((mReal)(end_c - start_c) / 1000);
             }
         }
     }
-#ifdef __RTAI__
-    end_p = rt_get_cpu_time_ns();
-#else
+
     end_p = getNanoSec();
-#endif
+
     s->set_cycle_time_status_us((mReal)(end_p - start_p) / 1000);
     //Set Command on non-EC components
     //Step components in reverse order
-#ifdef __RTAI__
-    start_p = rt_get_cpu_time_ns();
-#else
+
     start_p = getNanoSec();
-#endif
 
     for(int j = MAX_PRIORITY; j >= 0; j--) {
         for(int i = 0; i < m3rt_list.size(); i++) {
             if(m3rt_list[i]->GetPriority() == j) {
 
-#ifdef __RTAI__
-                start_c = rt_get_cpu_time_ns();
-#else
+
                 start_c = getNanoSec();
-#endif
+
                 m3rt_list[i]->StepCommand();
-#ifdef __RTAI__
-                end_c = rt_get_cpu_time_ns();
-#else
+
                 end_c = getNanoSec();
-#endif
+
                 M3MonitorComponent *c = s->mutable_components(idx_map_rt[i]);
                 c->set_cycle_time_command_us((mReal)(end_c - start_c) / 1000);
             }
         }
     }
-#ifdef __RTAI__
+//#ifdef __RTAI__
     //Send Command to EtherCAT
     for(int j = MAX_PRIORITY; j >= 0; j--) {
         for(int i = 0; i < m3ec_list.size(); i++) {
             if(m3ec_list[i]->GetPriority() == j) {
-                start_c = rt_get_cpu_time_ns();
+                start_c = getNanoSec();
                 m3ec_list[i]->StepCommand();
-                end_c = rt_get_cpu_time_ns();
+                end_c = getNanoSec();
                 M3MonitorComponent *c = s->mutable_components(idx_map_ec[i]);
                 c->set_cycle_time_command_us((mReal)(end_c - start_c) / 1000);
             }
 
         }
     }
-    end_p = rt_get_cpu_time_ns();
-#else
+//#endif
+
     end_p = getNanoSec();
-#endif
+
     s->set_cycle_time_command_us((mReal)(end_p - start_p) / 1000);
     //Now see if any errors raised
     CheckComponentStates();
+
     if(dry_run&&safeop_required){// Let's give it another chance!
         safeop_required=false;
         ret_step=false;
@@ -894,11 +877,9 @@ bool M3RtSystem::Step(bool safeop_only,bool dry_run)
             M3_DEBUG("Step() of log service failed.\n");
         logging = false;
     }
-#ifdef __RTAI__
-    end = rt_get_cpu_time_ns();
-#else
+
     end = getNanoSec();
-#endif
+
     mReal elapsed = (mReal)(end - start) / 1000;
     if(elapsed > s->cycle_time_max_us() && step_cnt > 10)
         s->set_cycle_time_max_us(elapsed);

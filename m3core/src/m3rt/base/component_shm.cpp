@@ -24,104 +24,111 @@ along with M3.  If not, see <http://www.gnu.org/licenses/>.
 namespace m3rt
 {
 
-void M3CompShm::request_status()
-{
-	rt_sem_wait(status_sem);
-}
+    void M3CompShm::request_status()
+    {
+        rt_sem_wait(status_sem);
+    }
 
-void M3CompShm::release_status()
-{
-	rt_sem_signal(status_sem);
-}
+    void M3CompShm::release_status()
+    {
+        rt_sem_signal(status_sem);
+    }
 
-void M3CompShm::request_command()
-{
-	rt_sem_wait(command_sem);
-}
+    void M3CompShm::request_command()
+    {
+        rt_sem_wait(command_sem);
+    }
 
-void M3CompShm::release_command()
-{
-	rt_sem_signal(command_sem);
-}
+    void M3CompShm::release_command()
+    {
+        rt_sem_signal(command_sem);
+    }
 
-bool M3CompShm::ReadConfig(const char * filename)
-{
-	//YAML::Node doc;
+    bool M3CompShm::ReadConfig(const char * filename)
+    {
+        //YAML::Node doc;
 
-	if (!M3Component::ReadConfig(filename)) return false;
-	//GetYamlDoc(filename, doc);
-	try{
-	doc["shm_id"] >> shm_id;
+        if (!M3Component::ReadConfig(filename)) return false;
+        //GetYamlDoc(filename, doc);
+        try{
+            doc["shm_id"] >> shm_id;
         }catch(...){
             shm_id = "M3WAR";
             M3_WARN("shm_id key not found, please add it to %s\n",filename);
         }
-	return true;
-}
+        return true;
+    }
 
 
-void  M3CompShm::StepStatus()
-{
-	if (!shm)
-	{
-		SetStateSafeOp();
-		return;
-	}
-	//if (!IsStateError()) //
-		SetSdsFromStatus(shm->status);
-}
+    void  M3CompShm::StepStatus()
+    {
+        if (!shm)
+        {
+            SetStateSafeOp();
+            return;
+        }
+        //if (!IsStateError()) //
+        SetSdsFromStatus(shm->status);
+    }
 
-void  M3CompShm::StepCommand()
-{
+    void  M3CompShm::StepCommand()
+    {
 
-	if (!shm) return;
-	if (!IsStateOp())
-		ResetCommandSds(shm->cmd);
-	else
-		SetCommandFromSds(shm->cmd);
+        if (!shm) return;
+        if (!IsStateOp())
+        ResetCommandSds(shm->cmd);
+        else
+        SetCommandFromSds(shm->cmd);
 
-}
+    }
 
-void  M3CompShm::Startup()
-{
-  SetStateSafeOp();
-#ifdef __RTAI__
-  command_sem = rt_typed_sem_init(nam2num((shm_id+"C").c_str()), 1, BIN_SEM | FIFO_Q );
-  status_sem = rt_typed_sem_init(nam2num((shm_id+"S").c_str()), 1, BIN_SEM | FIFO_Q );
-	shm = (M3Sds*)rt_shm_alloc(nam2num((shm_id+"M").c_str()),sizeof(M3Sds),USE_VMALLOC);
-#else
-	command_sem = sem_open ((shm_id+"C").c_str(), O_CREAT, 0660, 0);
-	status_sem = sem_open ((shm_id+"S").c_str(), O_CREAT, 0660, 0);
+    void  M3CompShm::Startup()
+    {
+        SetStateSafeOp();
+        #ifdef __RTAI__
+        command_sem = rt_typed_sem_init(nam2num((shm_id+"C").c_str()), 1, BIN_SEM | FIFO_Q );
+        status_sem = rt_typed_sem_init(nam2num((shm_id+"S").c_str()), 1, BIN_SEM | FIFO_Q );
+        shm = (M3Sds*)rt_shm_alloc(nam2num((shm_id+"M").c_str()),sizeof(M3Sds),USE_VMALLOC);
+        #else
+        command_sem = sem_open ((shm_id+"C").c_str(), O_CREAT, 0660, 0);
+        status_sem = sem_open ((shm_id+"S").c_str(), O_CREAT, 0660, 0);
 
-	if(command_sem == SEM_FAILED)
-	{
-		M3_ERR("Could not create command semaphore\n");
-	}
+        if(command_sem == SEM_FAILED)
+        {
+            M3_ERR("Could not create command semaphore\n");
+        }
 
-	if(status_sem == SEM_FAILED)
-	{
-		M3_ERR("Could not create command semaphore\n");
-	}
+        if(status_sem == SEM_FAILED)
+        {
+            M3_ERR("Could not create command semaphore\n");
+        }
 
-	int fd = shm_open((shm_id+"M").c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-	if(fd == -1)
-	{
-		M3_ERR("Could not create posix shared memory\n");
-		return;
-	}
-	ftruncate(fd, sizeof(M3Sds));
-	shm = (M3Sds*)mmap(NULL, sizeof(M3Sds),PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-#endif
-  memset(shm,0,sizeof(M3Sds));
-}
+        int fd = shm_open((shm_id+"M").c_str(), O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+        if(fd == -1)
+        {
+            M3_ERR("Could not create posix shared memory\n");
+            return;
+        }
+        if(ftruncate(fd, sizeof(M3Sds)) == -1 )
+        {
+            M3_ERR("Could not ftruncate the shared memory\n");
+        }
+        shm = (M3Sds*)mmap(NULL, sizeof(M3Sds),PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        if(shm == MAP_FAILED)
+        {
+            M3_ERR("mmap failed\n");
+        }
+        #endif
+        memset(shm,0,sizeof(M3Sds));
+    }
 
-void  M3CompShm::Shutdown()
-{
-#ifdef __RTAI__
-  rt_shm_free(nam2num((shm_id+"M").c_str()));
-#endif
-  rt_sem_delete(command_sem);
-  rt_sem_delete(status_sem);
-}
+    void  M3CompShm::Shutdown()
+    {
+        #ifdef __RTAI__
+        rt_shm_free(nam2num((shm_id+"M").c_str()));
+        #endif
+        rt_sem_delete(command_sem);
+        rt_sem_delete(status_sem);
+    }
 
 }

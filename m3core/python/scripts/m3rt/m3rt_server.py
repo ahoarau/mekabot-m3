@@ -35,7 +35,7 @@ from threading import Thread
 from threading import Event
 ## Handle Ctrl+c even though ros is launched
 import signal
-stop_signal=Event() 
+stop_signal=Event()
 def stop_program(signal, frame):
     stop_signal.set()
 
@@ -66,7 +66,7 @@ def start_log_service(logname, freq, components,page_size,logpath=None,verbose=T
         return False
     for c in components:
         svc.AddLogComponent(c)
-    return svc.AttachLogService(logname,logdir, freq,page_size,int(verbose)) 
+    return svc.AttachLogService(logname,logdir, freq,page_size,int(verbose))
 
 def stop_log_service():
     return svc.RemoveLogService()
@@ -91,22 +91,22 @@ class client_thread(Thread):
         self.make_all_op_no_shm = make_all_op_no_shm
         self.stop_event = Event()
         self.proxy = m3p.M3RtProxy(rpc_port=port)
-        self.proxy.start(start_data_svc, False)  
+        self.proxy.start(start_data_svc, False)
         print "M3 INFO: M3 is now running ",
         if self.make_all_op:
             print "(with option -make operational all+shm)"
             self.proxy.make_operational_all()
             self.proxy.make_operational_all_shm()
-        if self.make_all_op_shm:  
+        if self.make_all_op_shm:
             print "(with option -make operational shm only)"
-            self.proxy.make_operational_all_shm()        
+            self.proxy.make_operational_all_shm()
         if self.make_all_op_no_shm:
             print "(with option -make operational all (no shm))"
             self.proxy.make_operational_all()
     def run(self):
         self.stop_event.wait(timeout=None)
         print "M3 INFO: Closing Client Thread."
-        self.proxy.stop()    
+        self.proxy.stop()
 
 class M3Server(Thread):
     def __init__(self):
@@ -124,7 +124,7 @@ class M3Server(Thread):
         self.server.serve_forever()
         print "M3 INFO: Closing Socket"
         self.server.socket.close()
-            
+
 # ################################################################################
 
 ## THE DEFAULT ARGUMENTS TO START THE SERVER
@@ -181,9 +181,9 @@ try:
     try:
         m3server = M3Server()
     except Exception,e:
-        print "M3 ERROR: Error creating the server:",e
+        print "M3 ERROR: m3server = M3Server() Error creating the server: "+str(e)
         raise M3Exception("M3 RPC Server failed to start")
-    
+
     # Start the server
     #print "M3 INFO: Starting M3Rt."
     m3server.start()
@@ -193,9 +193,9 @@ try:
         #for i in xrange(400):
          #   time.sleep(0.01)
     except Exception,e:
-        print "M3 ERROR: Error creating the client thread:",e
+        print "M3 ERROR: m3client_thread = client_thread Error creating the client thread: "+str(e)
         raise M3Exception("Client Thread failed to start")
-    
+
     m3client_thread.start()
     #print "M3 INFO: M3 is now running."
     # Handling ctrl+c when ros is launched
@@ -206,12 +206,12 @@ try:
             print 'M3 INFO: Shutdown signal caught.'
     print "M3 INFO: Shutdown initiated."
 except Exception,e:
-    print 'M3 ERROR:',e  
-    
+    print 'M3 ERROR: '+str(e)
+
 if svc:
     print "M3 INFO: Shutting down M3Service."
     svc.Shutdown() #it's in the destructor !
- 
+
 if m3client_thread and m3client_thread.is_alive():
     print "M3 INFO: Shutting down Client Thread."
     m3client_thread.stop_event.set()
@@ -219,7 +219,7 @@ if m3client_thread and m3client_thread.is_alive():
     while m3client_thread.is_alive():
         time.sleep(0.05)
     print 'M3 INFO: Client thread exited normally.'
-  
+
 if m3server and m3server.is_alive():
     print "M3 INFO: Shutting down M3 RPC Server."
     m3server.server.shutdown()
@@ -232,6 +232,3 @@ time.sleep(0.5)
 print("M3 INFO: Exiting")
 exit(0)
 # ################################################################################
-    
-    
-    
